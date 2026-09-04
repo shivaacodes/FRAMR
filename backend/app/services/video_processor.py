@@ -19,16 +19,17 @@ def process_video_task(video_id: int, db: Session):
         db.commit()
 
         # 1. Analyze video with OpenCV to find highlights
-        segments = detect_highlights(video.original_path)
+        segments = detect_highlights(video.original_path, num_clips=3, clip_duration=4)
         
         # 2. Extract and merge clips with FFmpeg
-        highlight_path = extract_and_merge_clips(video.original_path, segments)
+        highlight_filename = extract_and_merge_clips(video.original_path, segments)
         
         # 3. Update database
         video.status = VideoStatus.COMPLETED
-        video.highlight_path = str(highlight_path)
+        video.highlight_path = highlight_filename
         db.commit()
+        print(f"[Processor] Completed video {video_id}. Highlight: {highlight_filename}")
     except Exception as e:
         video.status = VideoStatus.FAILED
         db.commit()
-        print(f"Error processing video {video_id}: {e}")
+        print(f"[Processor] Error processing video {video_id}: {e}")

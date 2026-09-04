@@ -1,10 +1,46 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-/* Custom global styles */
-body {
-  background-color: #f3f4f6;
-  color: #1f2937;
-  font-family: 'Inter', sans-serif;
+@theme {
+  --color-framr-cream: #F4F4EB;
+  --color-framr-lime: #39FF14;
+  --color-framr-magenta: #FF00FF;
+  --color-framr-yellow: #FFEA00;
+  --color-framr-purple: #4B0082;
+  --color-framr-black: #090909;
+
+  --font-display: "Space Grotesk", sans-serif;
+  --font-mono: "Space Mono", monospace;
+
+  --shadow-brutal: 6px 6px 0px 0px rgba(9,9,9,1);
+  --shadow-brutal-hover: 2px 2px 0px 0px rgba(9,9,9,1);
+  --shadow-brutal-white: 6px 6px 0px 0px rgba(255,255,255,1);
+}
+
+@layer base {
+  body {
+    @apply bg-framr-cream text-framr-black font-mono relative min-h-screen;
+  }
+}
+
+/* Noise overlay to give it a printed/gritty feel */
+.noise-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 50;
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
+/* Custom Selection */
+::selection {
+  @apply bg-framr-magenta text-white;
+}
+
+/* Brutalist Button Base */
+.btn-brutal {
+  @apply font-display font-bold uppercase tracking-wider border-4 border-framr-black shadow-brutal transition-all duration-150 active:shadow-brutal-hover active:translate-x-1 active:translate-y-1;
 }
