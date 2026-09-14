@@ -61,8 +61,12 @@ class ExportRequest(BaseModel):
     filter_type: str
     brightness: int
     contrast: int
+    saturation: int
+    blur: int
+    flip_h: bool
     is_muted: bool
     overlay_text: str
+    clip_order: list[int] | None = None
 
 @router.post("/{video_id}/export")
 def export_video(video_id: int, req: ExportRequest, db: Session = Depends(get_db)):
@@ -77,8 +81,12 @@ def export_video(video_id: int, req: ExportRequest, db: Session = Depends(get_db
             req.filter_type,
             req.brightness,
             req.contrast,
+            req.saturation,
+            req.blur,
+            req.flip_h,
             req.is_muted,
-            req.overlay_text
+            req.overlay_text,
+            req.clip_order
         )
         # Update db or just return the new file path?
         # Let's just return the URL so the frontend can download it.

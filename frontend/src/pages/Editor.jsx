@@ -13,12 +13,23 @@ export default function Editor() {
   const [filter, setFilter] = useState('none');
   const [brightness, setBrightness] = useState(100);
   const [contrast, setContrast] = useState(100);
+  const [saturation, setSaturation] = useState(100);
+  const [blur, setBlur] = useState(0);
+  const [flipH, setFlipH] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [overlayText, setOverlayText] = useState('');
+  const [isExporting, setIsExporting] = useState(false);
   
   // Timeline State
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  
+  // Hardcoded to 3 clips based on backend `num_clips=3`
+  const [clips, setClips] = useState([
+    { id: 'clip1', color: '#ff3366', originalIndex: 0 },
+    { id: 'clip2', color: '#33ccff', originalIndex: 1 },
+    { id: 'clip3', color: '#cc33ff', originalIndex: 2 }
+  ]);
   
   const videoRef = useRef(null);
   const trackRef = useRef(null);
@@ -32,6 +43,19 @@ export default function Editor() {
       .catch(e => console.error(e));
   }, [id]);
 
+  // Smooth seeker animation
+  useEffect(() => {
+    let animationFrameId;
+    const updateTime = () => {
+      if (videoRef.current) {
+        setCurrentTime(videoRef.current.currentTime);
+      }
+      animationFrameId = requestAnimationFrame(updateTime);
+    };
+    animationFrameId = requestAnimationFrame(updateTime);
+    return () => cancelAnimationFrame(animationFrameId);
+  }, []);
+
   if (!videoData) {
     return <div style={{padding: 40, textAlign: 'center'}}>Loading editor...</div>;
   }
@@ -39,12 +63,10 @@ export default function Editor() {
   const highlightUrl = `${API_BASE}/highlights/${videoData.highlight_path}`;
 
   // Build the CSS filter string
-  let filterStr = `brightness(${brightness}%) contrast(${contrast}%) `;
+  let filterStr = `brightness(${brightness}%) contrast(${contrast}%) saturate(${saturation}%) blur(${blur}px) `;
   if (filter === 'grayscale') filterStr += 'grayscale(100%) ';
   if (filter === 'vibrant') filterStr += 'saturate(200%) contrast(120%) ';
   if (filter === 'vintage') filterStr += 'sepia(60%) contrast(90%) hue-rotate(-15deg) ';
-
-  const [isExporting, setIsExporting] = useState(false);
 
   const handleExport = async () => {
     setIsExporting(true);
@@ -57,8 +79,12 @@ export default function Editor() {
           filter_type: filter,
           brightness: brightness,
           contrast: contrast,
+          saturation: saturation,
+          blur: blur,
+          flip_h: flipH,
           is_muted: isMuted,
-          overlay_text: overlayText
+          overlay_text: overlayText,
+          clip_order: clips.map(c => c.originalIndex)
         })
       });
       const data = await res.json();
@@ -94,12 +120,6 @@ export default function Editor() {
     return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
-  const handleTimeUpdate = () => {
-    if (videoRef.current) {
-      setCurrentTime(videoRef.current.currentTime);
-    }
-  };
-
   const handleLoadedMetadata = () => {
     if (videoRef.current) {
       setDuration(videoRef.current.duration);
@@ -116,21 +136,43 @@ export default function Editor() {
     setCurrentTime(newTime);
   };
 
-  const playheadPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
+  const handleDragStart = (e, index) => {
+    e.dataTransfer.setData('clipIndex', index);
+  };
 
+  const handleDrop = (e, index) => {
+    const fromIndex = parseInt(e.dataTransfer.getData('clipIndex'), 10);
+    if (isNaN(fromIndex)) return;
+    const newClips = [...clips];
+    const [moved] = newClips.splice(fromIndex, 1);
+    newClips.splice(index, 0, moved);
+    setClips(newClips);
+  };
+
+
+
+  const playheadPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
+  const currentClipIndex = duration > 0 ? Math.min(clips.length - 1, Math.floor((currentTime / duration) * clips.length)) : 0;
   return (
-    <div style={{ padding: '40px', maxWidth: '1200px', margin: '0 auto' }}>
-      <div className="editor-panel">
-        <div className="editor-panel__header">
-          <h3 className="editor-panel__title">
+    <div style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'var(--surface)', display: 'flex', flexDirection: 'column' }}>
+      <div className="editor-panel" style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%', border: 'none', borderTop: '3px solid var(--magenta)' }}>
+        <div className="editor-panel__header" style={{ padding: '15px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--gray-dim)' }}>
+          <h3 className="editor-panel__title" style={{ margin: 0 }}>
             <span className="editor-panel__dot"></span> EDIT STUDIO
           </h3>
-          <button className="btn-close" onClick={() => navigate(`/result/${id}`)}>✕</button>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button className="btn-danger" onClick={() => navigate(`/result/${id}`)} disabled={isExporting} style={{ padding: '8px 16px', fontSize: '0.9rem' }}>
+              Cancel
+            </button>
+            <button className="btn-download" onClick={handleExport} disabled={isExporting} style={{ padding: '8px 16px', fontSize: '0.9rem' }}>
+              {isExporting ? 'Exporting...' : 'Export Changes'}
+            </button>
+          </div>
         </div>
         
-        <div className="editor-panel__body">
-          <div className="editor-main">
-            <div className="editor-video-container" style={{ background: '#000', padding: '20px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <div className="editor-panel__body" style={{ flex: 1, overflow: 'hidden' }}>
+          <div className="editor-main" style={{ height: '100%' }}>
+            <div className="editor-video-container" style={{ flex: 1, background: '#000', padding: '20px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
               
               <div style={{
                 position: 'relative',
@@ -148,7 +190,6 @@ export default function Editor() {
                   muted={isMuted}
                   autoPlay
                   loop
-                  onTimeUpdate={handleTimeUpdate}
                   onLoadedMetadata={handleLoadedMetadata}
                   onClick={() => videoRef.current && (videoRef.current.paused ? videoRef.current.play() : videoRef.current.pause())}
                   style={{
@@ -156,7 +197,8 @@ export default function Editor() {
                     height: '100%',
                     objectFit: 'cover',
                     filter: filterStr,
-                    transition: 'filter 0.3s',
+                    transform: flipH ? 'scaleX(-1)' : 'none',
+                    transition: 'filter 0.3s, transform 0.3s',
                     cursor: 'pointer'
                   }}
                 />
@@ -190,10 +232,34 @@ export default function Editor() {
                 className="timeline-track" 
                 ref={trackRef} 
                 onClick={handleTrackClick}
-                style={{ cursor: 'pointer' }}
+                style={{ cursor: 'pointer', display: 'flex', gap: '4px', overflow: 'hidden' }}
               >
-                <div className="timeline-playhead" style={{ left: `${playheadPercent}%` }}></div>
-                <div className="timeline-segment timeline-segment--active" style={{ left: '0%', width: '100%' }}></div>
+                <div className="timeline-playhead" style={{ left: `${playheadPercent}%`, zIndex: 10 }}></div>
+                
+                {clips.map((clip, index) => (
+                  <div 
+                    key={clip.id}
+                    draggable
+                    onDragStart={(e) => handleDragStart(e, index)}
+                    onDragOver={(e) => e.preventDefault()}
+                    onDrop={(e) => handleDrop(e, index)}
+                    style={{
+                      flex: 1,
+                      height: '100%',
+                      background: 'var(--gray-dim)',
+                      opacity: index === currentClipIndex ? 1 : 0.4,
+                      border: index === currentClipIndex ? '2px solid var(--lime)' : 'none',
+                      borderRadius: '4px',
+                      cursor: 'grab',
+                      position: 'relative',
+                      transition: 'opacity 0.2s, border 0.2s'
+                    }}
+                  >
+                    <span style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', fontWeight: 'bold', color: index === currentClipIndex ? 'var(--lime)' : '#aaa', fontSize: '0.8rem' }}>
+                      CLIP {clip.originalIndex + 1}
+                    </span>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
@@ -223,8 +289,24 @@ export default function Editor() {
               <div className="control-row">
                 <span className="timeline-label" style={{width: '100%'}}>Brightness ({brightness}%)</span>
                 <input type="range" className="control-slider" min="0" max="200" value={brightness} onChange={e => setBrightness(e.target.value)} />
+                
                 <span className="timeline-label" style={{width: '100%', marginTop: '6px'}}>Contrast ({contrast}%)</span>
                 <input type="range" className="control-slider" min="0" max="200" value={contrast} onChange={e => setContrast(e.target.value)} />
+                
+                <span className="timeline-label" style={{width: '100%', marginTop: '6px'}}>Saturation ({saturation}%)</span>
+                <input type="range" className="control-slider" min="0" max="200" value={saturation} onChange={e => setSaturation(e.target.value)} />
+                
+                <span className="timeline-label" style={{width: '100%', marginTop: '6px'}}>Blur ({blur}px)</span>
+                <input type="range" className="control-slider" min="0" max="20" value={blur} onChange={e => setBlur(e.target.value)} />
+              </div>
+            </div>
+
+            <div className="control-group">
+              <label className="control-label">Orientation</label>
+              <div className="control-row">
+                <button className={`control-btn ${flipH ? 'control-btn--active' : ''}`} onClick={() => setFlipH(!flipH)}>
+                  Flip Horizontal
+                </button>
               </div>
             </div>
 
@@ -257,13 +339,6 @@ export default function Editor() {
               </div>
             </div>
           </div>
-        </div>
-        
-        <div className="editor-panel__footer">
-          <button className="btn-danger" onClick={() => navigate(`/result/${id}`)} disabled={isExporting}>Cancel</button>
-          <button className="btn-download" onClick={handleExport} disabled={isExporting}>
-            {isExporting ? 'Exporting...' : 'Export Changes'}
-          </button>
         </div>
       </div>
     </div>
