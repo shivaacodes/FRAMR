@@ -36,7 +36,7 @@ async def upload_video(
     db.refresh(new_video)
     
     # Trigger background task
-    background_tasks.add_task(process_video_task, new_video.id, db)
+    background_tasks.add_task(process_video_task, new_video.id)
     
     return {"message": "Upload successful, processing started", "video_id": new_video.id}
 
@@ -52,3 +52,37 @@ def get_video(video_id: int, db: Session = Depends(get_db)):
         return {"error": "Video not found"}
     return video
 
+
+from pydantic import BaseModel
+from app.services.ffmpeg_handler import apply_edits_cli
+
+class ExportRequest(BaseModel):
+    aspect_ratio: str
+    filter_type: str
+    brightness: int
+    contrast: int
+    is_muted: bool
+    overlay_text: str
+
+@router.post("/{video_id}/export")
+def export_video(video_id: int, req: ExportRequest, db: Session = Depends(get_db)):
+    video = db.query(models.Video).filter(models.Video.id == video_id).first()
+    if not video or not video.highlight_path:
+        return {"error": "Video not found or not processed"}
+        
+    try:
+        new_filename = apply_edits_cli(
+            video.highlight_path,
+            req.aspect_ratio,
+            req.filter_type,
+            req.brightness,
+            req.contrast,
+            req.is_muted,
+            req.overlay_text
+        )
+        # Update db or just return the new file path?
+        # Let's just return the URL so the frontend can download it.
+        return {"export_url": f"http://localhost:8000/highlights/{new_filename}"}
+    except Exception as e:
+        print(f"Export failed: {e}")
+        return {"error": "Export failed"}
