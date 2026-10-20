@@ -3,6 +3,8 @@
 # Ensure directories exist
 mkdir -p backend/data/uploads
 mkdir -p backend/data/highlights
+mkdir -p backend/data/logs
+mkdir -p backend/data/music
 
 # Set up Python Virtual Environment
 echo "Setting up Python Virtual Environment..."

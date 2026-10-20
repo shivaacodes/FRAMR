@@ -51,7 +51,48 @@ def get_video(video_id: int, db: Session = Depends(get_db)):
     if not video:
         return {"error": "Video not found"}
     return video
+from fastapi.responses import StreamingResponse
+import asyncio
 
+@router.get("/{video_id}/logs")
+async def get_video_logs(video_id: int):
+    log_path = os.path.join(settings.BASE_DIR, "data", "logs", f"video_{video_id}.log")
+    
+    async def log_generator():
+        # Wait up to 5 seconds for log file to be created
+        for _ in range(15):
+            if os.path.exists(log_path):
+                break
+            await asyncio.sleep(0.3)
+            
+        if not os.path.exists(log_path):
+            yield f"data: [System] Initializing processing daemon...\n\n"
+            return
+            
+        with open(log_path, "r") as f:
+            idle_ticks = 0
+            while True:
+                line = f.readline()
+                if line:
+                    idle_ticks = 0
+                    yield f"data: {line.strip()}\n\n"
+                    if "[System] Completed" in line or "[System] Error" in line:
+                        break
+                else:
+                    await asyncio.sleep(0.25)
+                    idle_ticks += 1
+                    if idle_ticks > 120:  # 30 seconds idle safeguard
+                        break
+                    
+    return StreamingResponse(
+        log_generator(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no"
+        }
+    )
 
 from pydantic import BaseModel
 from app.services.ffmpeg_handler import apply_edits_cli
@@ -64,6 +105,9 @@ class ExportRequest(BaseModel):
     saturation: int
     blur: int
     flip_h: bool
+    transition: str = "none"
+    speed: float = 1.0
+    soundtrack: str = "none"
     is_muted: bool
     overlay_text: str
     clip_order: list[int] | None = None
@@ -84,9 +128,12 @@ def export_video(video_id: int, req: ExportRequest, db: Session = Depends(get_db
             req.saturation,
             req.blur,
             req.flip_h,
+            req.transition,
             req.is_muted,
             req.overlay_text,
-            req.clip_order
+            req.clip_order,
+            req.speed,
+            req.soundtrack
         )
         # Update db or just return the new file path?
         # Let's just return the URL so the frontend can download it.

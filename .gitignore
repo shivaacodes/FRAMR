@@ -40,6 +40,10 @@ backend/data/uploads/*
 !backend/data/uploads/.gitkeep
 backend/data/highlights/*
 !backend/data/highlights/.gitkeep
+backend/data/logs/*
+!backend/data/logs/.gitkeep
+backend/data/music/*
+!backend/data/music/.gitkeep
 
 # Node / Frontend
 node_modules/

@@ -100,6 +100,10 @@ def detect_highlights(video_path: str, num_clips: int = 3, clip_duration: int = 
             
         prev_hist = hist
         
+        if (frame_idx // skip_frames) % 8 == 0 or frame_idx + skip_frames >= total_frames:
+            pct = min(100, int((frame_idx / total_frames) * 100))
+            print(f"[VisionEngine] Frame {frame_idx}/{total_frames} ({pct}%) -> Motion: {motion_scores[frame_idx]:.2f} | SceneΔ: {scene_cuts[frame_idx]:.2f}")
+        
         frame_idx += skip_frames
 
     cap.release()
@@ -184,7 +188,9 @@ def detect_highlights(video_path: str, num_clips: int = 3, clip_duration: int = 
     # Sort chronologically
     segments.sort(key=lambda x: x[0])
     
-    print(f"[Analyzer] Found highlight segments: {segments}")
+    print(f"[Intelligence] Multi-modal scoring complete.")
+    for idx, (s, e) in enumerate(segments):
+        print(f"[Intelligence] Clip #{idx+1} selected: [{s:.2f}s -> {e:.2f}s] (Duration: {e-s:.1f}s)")
     
     # Fallback if no segments found
     if not segments:

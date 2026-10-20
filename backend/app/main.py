@@ -5,14 +5,18 @@ from app.api.endpoints import video
 from app.db.session import engine
 from app.db import models
 from app.core.config import settings
+from app.services.soundtrack_generator import ensure_soundtracks
 
 # Create database tables
 models.Base.metadata.create_all(bind=engine)
+# Ensure default soundtracks exist
+ensure_soundtracks()
 
 app = FastAPI(title="FRAMR API", description="API for video highlight generation")
 
-# Mount highlights directory to serve video files
+# Mount highlights and music directories
 app.mount("/highlights", StaticFiles(directory=settings.HIGHLIGHTS_DIR), name="highlights")
+app.mount("/music", StaticFiles(directory=settings.MUSIC_DIR), name="music")
 
 # Configure CORS for frontend
 app.add_middleware(

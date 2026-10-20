@@ -16,6 +16,9 @@ export default function Editor() {
   const [saturation, setSaturation] = useState(100);
   const [blur, setBlur] = useState(0);
   const [flipH, setFlipH] = useState(false);
+  const [transition, setTransition] = useState('none');
+  const [speed, setSpeed] = useState(1.0);
+  const [soundtrack, setSoundtrack] = useState('none');
   const [isMuted, setIsMuted] = useState(false);
   const [overlayText, setOverlayText] = useState('');
   const [isExporting, setIsExporting] = useState(false);
@@ -33,6 +36,7 @@ export default function Editor() {
   
   const videoRef = useRef(null);
   const trackRef = useRef(null);
+  const bgmAudioRef = useRef(null);
 
   useEffect(() => {
     fetch(`${API_BASE}/api/v1/videos/${id}`)
@@ -43,7 +47,17 @@ export default function Editor() {
       .catch(e => console.error(e));
   }, [id]);
 
-  // Smooth seeker animation
+  // Cleanup BGM on unmount
+  useEffect(() => {
+    return () => {
+      if (bgmAudioRef.current) {
+        bgmAudioRef.current.pause();
+        bgmAudioRef.current = null;
+      }
+    };
+  }, []);
+
+  // Smooth seeker animation synced to 60fps requestAnimationFrame
   useEffect(() => {
     let animationFrameId;
     const updateTime = () => {
@@ -57,7 +71,11 @@ export default function Editor() {
   }, []);
 
   if (!videoData) {
-    return <div style={{padding: 40, textAlign: 'center'}}>Loading editor...</div>;
+    return (
+      <div style={{ padding: 60, textAlign: 'center', color: 'var(--yellow)', fontFamily: 'var(--font-mono)' }}>
+        Initializing Studio Engine...
+      </div>
+    );
   }
 
   const highlightUrl = `${API_BASE}/highlights/${videoData.highlight_path}`;
@@ -67,6 +85,30 @@ export default function Editor() {
   if (filter === 'grayscale') filterStr += 'grayscale(100%) ';
   if (filter === 'vibrant') filterStr += 'saturate(200%) contrast(120%) ';
   if (filter === 'vintage') filterStr += 'sepia(60%) contrast(90%) hue-rotate(-15deg) ';
+
+  const handleSpeedChange = (newSpeed) => {
+    setSpeed(newSpeed);
+    if (videoRef.current) {
+      videoRef.current.playbackRate = newSpeed;
+    }
+  };
+
+  const handleSoundtrackChange = (track) => {
+    setSoundtrack(track);
+    if (bgmAudioRef.current) {
+      bgmAudioRef.current.pause();
+      bgmAudioRef.current = null;
+    }
+    if (track !== 'none') {
+      const audio = new Audio(`${API_BASE}/music/${track}.wav`);
+      audio.loop = true;
+      audio.volume = 0.35;
+      bgmAudioRef.current = audio;
+      if (videoRef.current && !videoRef.current.paused) {
+        audio.play().catch(() => {});
+      }
+    }
+  };
 
   const handleExport = async () => {
     setIsExporting(true);
@@ -82,6 +124,9 @@ export default function Editor() {
           saturation: saturation,
           blur: blur,
           flip_h: flipH,
+          transition: transition,
+          speed: speed,
+          soundtrack: soundtrack,
           is_muted: isMuted,
           overlay_text: overlayText,
           clip_order: clips.map(c => c.originalIndex)
@@ -90,7 +135,6 @@ export default function Editor() {
       const data = await res.json();
       
       if (data.export_url) {
-        // Download the exported file
         const fileRes = await fetch(data.export_url);
         const blob = await fileRes.blob();
         const url = window.URL.createObjectURL(blob);
@@ -112,7 +156,6 @@ export default function Editor() {
     }
   };
 
-
   const formatTime = (secs) => {
     if (isNaN(secs)) return "00:00";
     const m = Math.floor(secs / 60);
@@ -123,6 +166,7 @@ export default function Editor() {
   const handleLoadedMetadata = () => {
     if (videoRef.current) {
       setDuration(videoRef.current.duration);
+      videoRef.current.playbackRate = speed;
     }
   };
 
@@ -134,6 +178,9 @@ export default function Editor() {
     const newTime = percentage * duration;
     videoRef.current.currentTime = newTime;
     setCurrentTime(newTime);
+    if (bgmAudioRef.current) {
+      bgmAudioRef.current.currentTime = newTime % 25;
+    }
   };
 
   const handleDragStart = (e, index) => {
@@ -149,48 +196,89 @@ export default function Editor() {
     setClips(newClips);
   };
 
-
-
   const playheadPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
   const currentClipIndex = duration > 0 ? Math.min(clips.length - 1, Math.floor((currentTime / duration) * clips.length)) : 0;
+
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'var(--surface)', display: 'flex', flexDirection: 'column' }}>
       <div className="editor-panel" style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%', border: 'none', borderTop: '3px solid var(--magenta)' }}>
-        <div className="editor-panel__header" style={{ padding: '15px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--gray-dim)' }}>
-          <h3 className="editor-panel__title" style={{ margin: 0 }}>
-            <span className="editor-panel__dot"></span> EDIT STUDIO
-          </h3>
-          <div style={{ display: 'flex', gap: '10px' }}>
-            <button className="btn-danger" onClick={() => navigate(`/result/${id}`)} disabled={isExporting} style={{ padding: '8px 16px', fontSize: '0.9rem' }}>
+        
+        {/* Top Header */}
+        <div className="editor-panel__header" style={{ padding: '14px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--gray-dim)', background: 'var(--ink)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span className="editor-panel__dot" style={{ width: '10px', height: '10px', background: 'var(--lime)' }}></span>
+            <h3 className="editor-panel__title" style={{ margin: 0, fontSize: '1.05rem', letterSpacing: '1px' }}>
+              FRAMR EDIT STUDIO // PRO SUITE
+            </h3>
+          </div>
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <button className="btn-secondary" onClick={() => navigate(`/result/${id}`)} disabled={isExporting} style={{ padding: '8px 18px', fontSize: '0.85rem' }}>
               Cancel
             </button>
-            <button className="btn-download" onClick={handleExport} disabled={isExporting} style={{ padding: '8px 16px', fontSize: '0.9rem' }}>
+            <button
+              className="btn-download"
+              onClick={handleExport}
+              disabled={isExporting}
+              style={{
+                background: 'var(--lime)',
+                color: 'var(--black)',
+                fontWeight: 'bold',
+                padding: '8px 20px',
+                fontSize: '0.85rem'
+              }}
+            >
               {isExporting ? 'Exporting...' : 'Export Changes'}
             </button>
           </div>
         </div>
         
-        <div className="editor-panel__body" style={{ flex: 1, overflow: 'hidden' }}>
-          <div className="editor-main" style={{ height: '100%' }}>
-            <div className="editor-video-container" style={{ flex: 1, background: '#000', padding: '20px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        {/* Body Container */}
+        <div 
+          className="editor-panel__body" 
+          style={{ 
+            flex: 1, 
+            display: 'grid', 
+            gridTemplateColumns: '1fr 340px', 
+            gap: '20px', 
+            padding: '20px', 
+            minHeight: 0, 
+            overflow: 'hidden',
+            background: 'var(--surface)'
+          }}
+        >
+          {/* Main Video & Timeline Area */}
+          <div className="editor-main" style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0 }}>
+            <div className="editor-video-container" style={{ flex: 1, background: '#0a060e', padding: '16px', display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 0, borderRadius: '8px' }}>
               
               <div style={{
                 position: 'relative',
                 aspectRatio: aspectRatio,
+                maxWidth: '100%',
+                maxHeight: '100%',
+                height: aspectRatio === '9/16' ? '100%' : 'auto',
                 width: aspectRatio === '9/16' ? 'auto' : '100%',
-                height: aspectRatio === '9/16' ? '400px' : 'auto',
-                maxHeight: '400px',
                 overflow: 'hidden',
-                border: '1px solid var(--gray-dim)'
+                borderRadius: '4px',
+                boxShadow: '0 8px 30px rgba(0,0,0,0.8)',
+                border: '1px solid var(--gray-dim)',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center'
               }}>
                 <video
                   ref={videoRef}
                   src={highlightUrl}
-                  controls={false} // Disable native controls to rely on timeline
+                  controls={false}
                   muted={isMuted}
                   autoPlay
                   loop
                   onLoadedMetadata={handleLoadedMetadata}
+                  onPlay={() => {
+                    if (bgmAudioRef.current) bgmAudioRef.current.play().catch(() => {});
+                  }}
+                  onPause={() => {
+                    if (bgmAudioRef.current) bgmAudioRef.current.pause();
+                  }}
                   onClick={() => videoRef.current && (videoRef.current.paused ? videoRef.current.play() : videoRef.current.pause())}
                   style={{
                     width: '100%',
@@ -210,34 +298,55 @@ export default function Editor() {
                     left: '50%',
                     transform: 'translate(-50%, -50%)',
                     fontFamily: 'var(--font-display)',
-                    fontSize: '2rem',
+                    fontSize: '2.4rem',
                     color: 'white',
-                    textShadow: '2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000',
+                    textShadow: '3px 3px 0 #000, -3px -3px 0 #000, 3px -3px 0 #000, -3px 3px 0 #000',
                     pointerEvents: 'none',
-                    textAlign: 'center'
+                    textAlign: 'center',
+                    letterSpacing: '1px'
                   }}>
                     {overlayText}
                   </div>
                 )}
               </div>
-
             </div>
             
-            <div className="editor-timeline">
-              <div className="timeline-header">
-                <span className="timeline-label">TIMELINE (Click to seek)</span>
-                <span className="timeline-time">{formatTime(currentTime)} / {formatTime(duration)}</span>
+            {/* Interactive Timeline with Drag-and-Drop */}
+            <div className="editor-timeline" style={{ padding: '16px 20px', background: 'var(--ink)', borderRadius: '8px', marginTop: '14px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                <span className="timeline-label" style={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span>↕️</span> AI Highlights Sequence (Drag blocks to rearrange)
+                </span>
+                <span className="timeline-time" style={{ fontFamily: 'var(--font-mono)', color: 'var(--yellow)' }}>
+                  {formatTime(currentTime)} / {formatTime(duration)}
+                </span>
               </div>
+              
               <div 
                 className="timeline-track" 
                 ref={trackRef} 
                 onClick={handleTrackClick}
-                style={{ cursor: 'pointer', display: 'flex', gap: '4px', overflow: 'hidden' }}
+                style={{ position: 'relative', height: '52px', background: 'rgba(0,0,0,0.6)', borderRadius: '6px', cursor: 'pointer', overflow: 'hidden', display: 'flex', gap: '6px', padding: '3px' }}
               >
-                <div className="timeline-playhead" style={{ left: `${playheadPercent}%`, zIndex: 10 }}></div>
-                
+                {/* Playhead */}
+                <div 
+                  className="timeline-playhead" 
+                  style={{ 
+                    position: 'absolute', 
+                    top: 0, 
+                    bottom: 0, 
+                    left: `${playheadPercent}%`, 
+                    width: '3px', 
+                    background: 'var(--yellow)', 
+                    zIndex: 10,
+                    boxShadow: '0 0 10px var(--yellow)',
+                    pointerEvents: 'none'
+                  }} 
+                />
+
+                {/* Clips block */}
                 {clips.map((clip, index) => (
-                  <div 
+                  <div
                     key={clip.id}
                     draggable
                     onDragStart={(e) => handleDragStart(e, index)}
@@ -246,25 +355,68 @@ export default function Editor() {
                     style={{
                       flex: 1,
                       height: '100%',
-                      background: 'var(--gray-dim)',
-                      opacity: index === currentClipIndex ? 1 : 0.4,
-                      border: index === currentClipIndex ? '2px solid var(--lime)' : 'none',
+                      background: index === currentClipIndex ? 'rgba(242, 194, 48, 0.18)' : 'rgba(255, 255, 255, 0.04)',
+                      border: index === currentClipIndex ? '2px solid var(--lime)' : '1px solid var(--gray-dim)',
                       borderRadius: '4px',
-                      cursor: 'grab',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
                       position: 'relative',
-                      transition: 'opacity 0.2s, border 0.2s'
+                      cursor: 'grab',
+                      userSelect: 'none',
+                      transition: 'all 0.2s'
                     }}
                   >
-                    <span style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', fontWeight: 'bold', color: index === currentClipIndex ? 'var(--lime)' : '#aaa', fontSize: '0.8rem' }}>
-                      CLIP {clip.originalIndex + 1}
-                    </span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <span style={{ fontSize: '0.8rem', color: '#888' }}>⋮⋮</span>
+                      <span style={{ fontWeight: 'bold', color: index === currentClipIndex ? 'var(--lime)' : '#bbb', fontSize: '0.8rem', fontFamily: 'var(--font-mono)' }}>
+                        SCENE #{clip.originalIndex + 1}
+                      </span>
+                    </div>
                   </div>
                 ))}
               </div>
             </div>
           </div>
           
-          <div className="editor-controls">
+          {/* Side Controls Panel */}
+          <div className="editor-controls" style={{ overflowY: 'auto', maxHeight: '100%', borderRadius: '8px', padding: '18px', background: 'var(--ink)' }}>
+            
+            {/* Speed Control (Feature 2) */}
+            <div className="control-group">
+              <label className="control-label">Speed &amp; Slow-Mo</label>
+              <div className="control-row">
+                <button className={`control-btn ${speed === 0.5 ? 'control-btn--active' : ''}`} onClick={() => handleSpeedChange(0.5)}>0.5x Slow-Mo</button>
+                <button className={`control-btn ${speed === 0.75 ? 'control-btn--active' : ''}`} onClick={() => handleSpeedChange(0.75)}>0.75x</button>
+                <button className={`control-btn ${speed === 1.0 ? 'control-btn--active' : ''}`} onClick={() => handleSpeedChange(1.0)}>1.0x Normal</button>
+                <button className={`control-btn ${speed === 1.5 ? 'control-btn--active' : ''}`} onClick={() => handleSpeedChange(1.5)}>1.5x</button>
+                <button className={`control-btn ${speed === 2.0 ? 'control-btn--active' : ''}`} onClick={() => handleSpeedChange(2.0)}>2.0x Hyper</button>
+              </div>
+            </div>
+
+            {/* AI Soundtracks (Feature 3) */}
+            <div className="control-group">
+              <label className="control-label">AI Soundtracks (Auto Ducking)</label>
+              <div className="control-row">
+                <button className={`control-btn ${soundtrack === 'none' ? 'control-btn--active' : ''}`} onClick={() => handleSoundtrackChange('none')}>None</button>
+                <button className={`control-btn ${soundtrack === 'cyber_beat' ? 'control-btn--active' : ''}`} onClick={() => handleSoundtrackChange('cyber_beat')}>⚡ Cyber Beat</button>
+                <button className={`control-btn ${soundtrack === 'epic_action' ? 'control-btn--active' : ''}`} onClick={() => handleSoundtrackChange('epic_action')}>🔥 Epic Action</button>
+                <button className={`control-btn ${soundtrack === 'lofi_chill' ? 'control-btn--active' : ''}`} onClick={() => handleSoundtrackChange('lofi_chill')}>☕ Lo-Fi Chill</button>
+              </div>
+            </div>
+
+            {/* Transitions */}
+            <div className="control-group">
+              <label className="control-label">Transitions</label>
+              <div className="control-row">
+                <button className={`control-btn ${transition === 'none' ? 'control-btn--active' : ''}`} onClick={() => setTransition('none')}>Cut</button>
+                <button className={`control-btn ${transition === 'fade' ? 'control-btn--active' : ''}`} onClick={() => setTransition('fade')}>Fade</button>
+                <button className={`control-btn ${transition === 'wipeleft' ? 'control-btn--active' : ''}`} onClick={() => setTransition('wipeleft')}>Wipe</button>
+                <button className={`control-btn ${transition === 'pixelize' ? 'control-btn--active' : ''}`} onClick={() => setTransition('pixelize')}>Pixelize</button>
+              </div>
+            </div>
+
+            {/* Aspect Ratio */}
             <div className="control-group">
               <label className="control-label">Aspect Ratio</label>
               <div className="control-row">
@@ -274,6 +426,7 @@ export default function Editor() {
               </div>
             </div>
             
+            {/* Filters */}
             <div className="control-group">
               <label className="control-label">Filters</label>
               <div className="control-row">
@@ -284,6 +437,7 @@ export default function Editor() {
               </div>
             </div>
             
+            {/* Adjustments */}
             <div className="control-group">
               <label className="control-label">Adjustments</label>
               <div className="control-row">
@@ -301,6 +455,7 @@ export default function Editor() {
               </div>
             </div>
 
+            {/* Orientation */}
             <div className="control-group">
               <label className="control-label">Orientation</label>
               <div className="control-row">
@@ -310,14 +465,15 @@ export default function Editor() {
               </div>
             </div>
 
+            {/* Audio & Text */}
             <div className="control-group">
-              <label className="control-label">Audio & Text</label>
+              <label className="control-label">Audio &amp; Text</label>
               <div className="control-row">
                 <button className={`control-btn ${isMuted ? 'control-btn--active' : ''}`} onClick={() => {
                   setIsMuted(!isMuted);
                   if (videoRef.current) videoRef.current.muted = !isMuted;
                 }}>
-                  {isMuted ? 'Unmute Audio' : 'Mute Audio'}
+                  {isMuted ? 'Unmute Original Audio' : 'Mute Original Audio'}
                 </button>
               </div>
               <div className="control-row" style={{ marginTop: '8px' }}>
@@ -329,11 +485,12 @@ export default function Editor() {
                   style={{
                     width: '100%',
                     padding: '8px',
-                    background: 'var(--ink)',
+                    background: 'var(--surface)',
                     border: '1px solid var(--gray-dim)',
                     color: 'white',
                     fontFamily: 'var(--font-ui)',
-                    fontSize: '0.8rem'
+                    fontSize: '0.8rem',
+                    borderRadius: '4px'
                   }}
                 />
               </div>

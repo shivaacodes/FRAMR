@@ -1,11 +1,29 @@
 import time
+import os
+import sys
+import contextlib
 from sqlalchemy.orm import Session
 from app.db import models
 from app.db.models import VideoStatus
 from app.db.session import SessionLocal
+from app.core.config import settings
 
 from app.services.frame_analyzer import detect_highlights
 from app.services.ffmpeg_handler import extract_and_merge_clips
+
+class FileAndStdout:
+    def __init__(self, filepath):
+        self.file = open(filepath, "w")
+        self.stdout = sys.stdout
+        
+    def write(self, data):
+        self.file.write(data)
+        self.file.flush()
+        self.stdout.write(data)
+        
+    def flush(self):
+        self.file.flush()
+        self.stdout.flush()
 
 def process_video_task(video_id: int):
     """
@@ -16,25 +34,32 @@ def process_video_task(video_id: int):
         video = db.query(models.Video).filter(models.Video.id == video_id).first()
         if not video:
             return
-    
-        try:
-            video.status = VideoStatus.PROCESSING
-            db.commit()
-    
-            # 1. Analyze video with OpenCV to find highlights
-            segments = detect_highlights(video.original_path, num_clips=3, clip_duration=4)
             
-            # 2. Extract and merge clips with FFmpeg
-            highlight_filename = extract_and_merge_clips(video.original_path, segments)
-            
-            # 3. Update database
-            video.status = VideoStatus.COMPLETED
-            video.highlight_path = highlight_filename
-            db.commit()
-            print(f"[Processor] Completed video {video_id}. Highlight: {highlight_filename}")
-        except Exception as e:
-            video.status = VideoStatus.FAILED
-            db.commit()
-            print(f"[Processor] Error processing video {video_id}: {e}")
+        log_path = os.path.join(settings.BASE_DIR, "data", "logs", f"video_{video_id}.log")
+        logger = FileAndStdout(log_path)
+    
+        with contextlib.redirect_stdout(logger):
+            try:
+                print("[System] Initializing AI models...")
+                video.status = VideoStatus.PROCESSING
+                db.commit()
+        
+                # 1. Analyze video with OpenCV to find highlights
+                segments = detect_highlights(video.original_path, num_clips=3, clip_duration=4)
+                
+                # 2. Extract and merge clips with FFmpeg
+                highlight_filename = extract_and_merge_clips(video.original_path, segments)
+                
+                # 3. Update database
+                video.status = VideoStatus.COMPLETED
+                video.highlight_path = highlight_filename
+                db.commit()
+                print(f"[System] Completed video {video_id}. Highlight: {highlight_filename}")
+            except Exception as e:
+                video.status = VideoStatus.FAILED
+                db.commit()
+                print(f"[System] Error processing video {video_id}: {e}")
+            finally:
+                logger.file.close()
     finally:
         db.close()
