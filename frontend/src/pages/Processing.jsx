@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-
-const API_BASE = 'http://localhost:8000';
+import { API_BASE } from '../config';
 
 export default function Processing() {
   const { id } = useParams();
@@ -88,7 +87,7 @@ export default function Processing() {
   };
 
   return (
-    <div style={{ maxWidth: '960px', margin: '0 auto', padding: '30px 20px', width: '100%', position: 'relative', zIndex: 10 }}>
+    <div style={{ maxWidth: '960px', margin: '0 auto', padding: 'clamp(16px, 3vw, 30px) clamp(10px, 2.5vw, 20px)', width: '100%', position: 'relative', zIndex: 10 }}>
       <section 
         className="cyber-card cyber-cut" 
         style={{ 

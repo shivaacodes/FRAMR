@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-
-const API_BASE = 'http://localhost:8000';
+import { API_BASE } from '../config';
 
 export default function Editor() {
   const { id } = useParams();
@@ -136,7 +135,8 @@ export default function Editor() {
       const data = await res.json();
       
       if (data.export_url) {
-        const fileRes = await fetch(data.export_url);
+        const downloadUrl = data.export_url.startsWith('http') ? data.export_url : `${API_BASE}${data.export_url}`;
+        const fileRes = await fetch(downloadUrl);
         const blob = await fileRes.blob();
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -206,15 +206,15 @@ export default function Editor() {
       <div className="editor-panel" style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%', border: 'none', borderTop: '3px solid var(--magenta)' }}>
         
         {/* Top Header */}
-        <div className="editor-panel__header" style={{ padding: '14px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--gray-dim)', background: 'var(--ink)' }}>
+        <div className="editor-panel__header" style={{ padding: '12px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px', borderBottom: '1px solid var(--gray-dim)', background: 'var(--ink)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <span className="editor-panel__dot" style={{ width: '10px', height: '10px', background: 'var(--lime)' }}></span>
-            <h3 className="editor-panel__title" style={{ margin: 0, fontSize: '1.05rem', letterSpacing: '1px' }}>
+            <h3 className="editor-panel__title" style={{ margin: 0, fontSize: '1rem', letterSpacing: '1px' }}>
               FRAMR EDIT STUDIO // PRO SUITE
             </h3>
           </div>
-          <div style={{ display: 'flex', gap: '10px' }}>
-            <button className="btn-secondary" onClick={() => navigate(`/result/${id}`)} disabled={isExporting} style={{ padding: '8px 16px', fontSize: '0.85rem' }}>
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            <button className="btn-secondary" onClick={() => navigate(`/result/${id}`)} disabled={isExporting} style={{ padding: '6px 12px', fontSize: '0.8rem' }}>
               Cancel
             </button>
             <button
@@ -225,8 +225,8 @@ export default function Editor() {
                 background: 'linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888)',
                 color: '#fff',
                 fontWeight: 'bold',
-                padding: '8px 16px',
-                fontSize: '0.85rem',
+                padding: '6px 14px',
+                fontSize: '0.8rem',
                 border: 'none',
                 display: 'flex',
                 alignItems: 'center',
@@ -243,8 +243,8 @@ export default function Editor() {
                 background: 'var(--lime)',
                 color: 'var(--black)',
                 fontWeight: 'bold',
-                padding: '8px 18px',
-                fontSize: '0.85rem'
+                padding: '6px 14px',
+                fontSize: '0.8rem'
               }}
             >
               {isExporting ? 'Exporting...' : 'Export Changes'}
@@ -258,11 +258,10 @@ export default function Editor() {
           style={{ 
             flex: 1, 
             display: 'grid', 
-            gridTemplateColumns: '1fr 340px', 
-            gap: '20px', 
-            padding: '20px', 
+            gap: '16px', 
+            padding: '16px', 
             minHeight: 0, 
-            overflow: 'hidden',
+            overflow: 'auto',
             background: 'var(--surface)'
           }}
         >

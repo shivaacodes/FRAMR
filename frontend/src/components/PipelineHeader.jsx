@@ -1,8 +1,10 @@
 import { useLocation, useNavigate, Link } from 'react-router-dom';
+import { useAudio } from '../context/AudioContext';
 
 export default function PipelineHeader() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { isPlaying, toggleAudio } = useAudio() || {};
   const path = location.pathname;
 
   // Extract ID if present in URL
@@ -47,21 +49,17 @@ export default function PipelineHeader() {
   ];
 
   return (
-    <nav style={{
-      background: 'rgba(10, 7, 18, 0.85)',
+    <nav className="cyber-header-nav" style={{
+      background: 'rgba(10, 7, 18, 0.92)',
       backdropFilter: 'blur(16px)',
       borderBottom: '1px solid rgba(0, 240, 255, 0.2)',
-      padding: '10px 24px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
       position: 'sticky',
       top: 0,
       zIndex: 500,
       boxShadow: '0 4px 25px rgba(0, 240, 255, 0.08)'
     }}>
       {/* Brand logo & Cyber Tag */}
-      <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px' }}>
+      <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
         <div style={{
           width: '32px',
           height: '32px',
@@ -88,7 +86,7 @@ export default function PipelineHeader() {
           }}>
             FRAMR
           </span>
-          <span style={{
+          <span className="cyber-header-tag" style={{
             fontSize: '0.62rem',
             color: '#00f0ff',
             fontFamily: 'var(--font-mono)',
@@ -104,17 +102,9 @@ export default function PipelineHeader() {
       </Link>
 
       {/* Cyberpunk Breadcrumb Pipeline */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '4px',
-        background: 'rgba(0,0,0,0.5)',
-        padding: '4px 10px',
-        borderRadius: '30px',
-        border: '1px solid rgba(255, 255, 255, 0.08)'
-      }}>
+      <div className="cyber-header-steps">
         {steps.map((s, idx) => (
-          <div key={s.num} style={{ display: 'flex', alignItems: 'center' }}>
+          <div key={s.num} style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
             <button
               onClick={() => s.path && navigate(s.path)}
               disabled={s.disabled}
@@ -134,7 +124,8 @@ export default function PipelineHeader() {
                 alignItems: 'center',
                 gap: '6px',
                 transition: 'all 0.2s',
-                boxShadow: s.active ? '0 0 12px rgba(0, 240, 255, 0.4)' : 'none'
+                boxShadow: s.active ? '0 0 12px rgba(0, 240, 255, 0.4)' : 'none',
+                flexShrink: 0
               }}
             >
               <span style={{
@@ -160,8 +151,9 @@ export default function PipelineHeader() {
               <span style={{
                 color: s.active ? '#ff007f' : '#33263e',
                 fontSize: '0.65rem',
-                margin: '0 2px',
-                fontWeight: 'bold'
+                margin: '0 4px',
+                fontWeight: 'bold',
+                flexShrink: 0
               }}>
                 ─►
               </span>
@@ -170,8 +162,39 @@ export default function PipelineHeader() {
         ))}
       </div>
 
-      {/* Right Cyber Status */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+      {/* Right Cyber Status & Audio Controller */}
+      <div className="cyber-header-actions" style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
+        {/* Background Club Music Toggle */}
+        <button
+          onClick={toggleAudio}
+          title={isPlaying ? "Mute Background Music" : "Play Background Music"}
+          style={{
+            background: isPlaying ? 'rgba(0, 240, 255, 0.12)' : 'rgba(255, 255, 255, 0.05)',
+            border: isPlaying ? '1px solid #00f0ff' : '1px solid rgba(255, 255, 255, 0.2)',
+            borderRadius: '20px',
+            padding: '5px 12px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            color: isPlaying ? '#00f0ff' : '#888',
+            fontFamily: 'var(--font-mono)',
+            fontSize: '0.68rem',
+            cursor: 'pointer',
+            boxShadow: isPlaying ? '0 0 12px rgba(0, 240, 255, 0.35)' : 'none',
+            transition: 'all 0.2s ease'
+          }}
+        >
+          <span>{isPlaying ? '🔊' : '🔇'}</span>
+          <span>{isPlaying ? 'CLUB AUDIO' : 'AUDIO OFF'}</span>
+          {isPlaying && (
+            <div className="audio-eq-bars">
+              <span className="audio-eq-bar audio-eq-bar--1" />
+              <span className="audio-eq-bar audio-eq-bar--2" />
+              <span className="audio-eq-bar audio-eq-bar--3" />
+            </div>
+          )}
+        </button>
+
         <div style={{
           display: 'flex',
           alignItems: 'center',

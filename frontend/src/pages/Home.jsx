@@ -1,7 +1,6 @@
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-
-const API_BASE = 'http://localhost:8000';
+import { API_BASE } from '../config';
 
 export default function Home() {
   const [dragOver, setDragOver] = useState(false);
@@ -57,7 +56,7 @@ export default function Home() {
   };
 
   return (
-    <div style={{ maxWidth: '960px', margin: '0 auto', padding: '30px 20px', width: '100%', position: 'relative', zIndex: 10 }}>
+    <div style={{ maxWidth: '960px', margin: '0 auto', padding: 'clamp(16px, 3vw, 30px) clamp(10px, 2.5vw, 20px)', width: '100%', position: 'relative', zIndex: 10 }}>
       
       {/* 3D Cyber Ingest Portal */}
       <div 

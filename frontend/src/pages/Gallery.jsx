@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-
-const API_BASE = 'http://localhost:8000';
+import { API_BASE } from '../config';
 
 export default function Gallery() {
   const [videos, setVideos] = useState([]);
@@ -18,8 +17,40 @@ export default function Gallery() {
       .finally(() => setLoading(false));
   }, []);
 
+  const handleDeleteVideo = async (videoId) => {
+    if (!window.confirm(`Delete Job #${videoId} from Vault? This will remove files and records.`)) {
+      return;
+    }
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/videos/${videoId}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (data.id || data.message) {
+        setVideos(prev => prev.filter(v => v.id !== videoId));
+      } else {
+        alert(data.error || 'Failed to delete video');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Delete request failed.');
+    }
+  };
+
+  const handlePurgeAll = async () => {
+    if (!window.confirm('⚠️ PURGE ENTIRE VAULT?\n\nThis will permanently delete all archived highlight videos, logs, and database records.')) {
+      return;
+    }
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/videos/purge-all`, { method: 'DELETE' });
+      const data = await res.json();
+      setVideos([]);
+    } catch (err) {
+      console.error(err);
+      alert('Purge request failed.');
+    }
+  };
+
   return (
-    <div style={{ maxWidth: '1060px', margin: '0 auto', padding: '30px 20px', width: '100%', position: 'relative', zIndex: 10 }}>
+    <div style={{ maxWidth: '1060px', margin: '0 auto', padding: 'clamp(16px, 3vw, 30px) clamp(10px, 2.5vw, 20px)', width: '100%', position: 'relative', zIndex: 10 }}>
       
       {/* Vault Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '12px' }}>
@@ -41,23 +72,57 @@ export default function Gallery() {
           </p>
         </div>
 
-        <button
-          onClick={() => navigate('/ingest')}
-          style={{
-            background: 'linear-gradient(90deg, #00f0ff, #0088ff)',
-            color: '#000',
-            fontWeight: 800,
-            fontFamily: 'var(--font-mono)',
-            fontSize: '0.75rem',
-            padding: '8px 18px',
-            borderRadius: '6px',
-            border: 'none',
-            cursor: 'pointer',
-            boxShadow: '0 0 15px rgba(0, 240, 255, 0.4)'
-          }}
-        >
-          + INGEST NEW FOOTAGE
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          {videos.length > 0 && (
+            <button
+              onClick={handlePurgeAll}
+              style={{
+                background: 'rgba(255, 0, 85, 0.12)',
+                color: '#ff0055',
+                fontWeight: 700,
+                fontFamily: 'var(--font-mono)',
+                fontSize: '0.75rem',
+                padding: '8px 14px',
+                borderRadius: '6px',
+                border: '1px solid rgba(255, 0, 85, 0.45)',
+                cursor: 'pointer',
+                boxShadow: '0 0 12px rgba(255, 0, 85, 0.2)',
+                transition: 'all 0.2s',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'rgba(255, 0, 85, 0.25)';
+                e.currentTarget.style.boxShadow = '0 0 18px rgba(255, 0, 85, 0.45)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'rgba(255, 0, 85, 0.12)';
+                e.currentTarget.style.boxShadow = '0 0 12px rgba(255, 0, 85, 0.2)';
+              }}
+            >
+              <span>⚠️</span> PURGE ALL VAULT
+            </button>
+          )}
+
+          <button
+            onClick={() => navigate('/ingest')}
+            style={{
+              background: 'linear-gradient(90deg, #00f0ff, #0088ff)',
+              color: '#000',
+              fontWeight: 800,
+              fontFamily: 'var(--font-mono)',
+              fontSize: '0.75rem',
+              padding: '8px 18px',
+              borderRadius: '6px',
+              border: 'none',
+              cursor: 'pointer',
+              boxShadow: '0 0 15px rgba(0, 240, 255, 0.4)'
+            }}
+          >
+            + INGEST NEW FOOTAGE
+          </button>
+        </div>
       </div>
 
       {loading ? (
@@ -119,13 +184,42 @@ export default function Gallery() {
                     JOB #{v.id}
                   </span>
 
-                  <span style={{
-                    fontFamily: 'var(--font-mono)',
-                    fontSize: '0.7rem',
-                    color: v.status === 'COMPLETED' ? '#39ff14' : (v.status === 'FAILED' ? '#ff007f' : '#ffe600')
-                  }}>
-                    ● {v.status}
-                  </span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{
+                      fontFamily: 'var(--font-mono)',
+                      fontSize: '0.7rem',
+                      color: v.status === 'COMPLETED' ? '#39ff14' : (v.status === 'FAILED' ? '#ff007f' : '#ffe600')
+                    }}>
+                      ● {v.status}
+                    </span>
+                    <button
+                      onClick={() => handleDeleteVideo(v.id)}
+                      title="Delete video record & files"
+                      style={{
+                        background: 'rgba(255, 0, 85, 0.1)',
+                        border: '1px solid rgba(255, 0, 85, 0.35)',
+                        color: '#ff0055',
+                        borderRadius: '4px',
+                        padding: '2px 7px',
+                        fontSize: '0.75rem',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                        lineHeight: 1
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = '#ff0055';
+                        e.currentTarget.style.color = '#fff';
+                        e.currentTarget.style.boxShadow = '0 0 10px #ff0055';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'rgba(255, 0, 85, 0.1)';
+                        e.currentTarget.style.color = '#ff0055';
+                        e.currentTarget.style.boxShadow = 'none';
+                      }}
+                    >
+                      ✕
+                    </button>
+                  </div>
                 </div>
 
                 {/* Video Name */}
@@ -221,6 +315,31 @@ export default function Gallery() {
                       }}
                     >
                       🎛️ STUDIO
+                    </button>
+                    <button
+                      onClick={() => handleDeleteVideo(v.id)}
+                      title="Delete this highlight from vault"
+                      style={{
+                        background: 'rgba(255, 0, 85, 0.1)',
+                        border: '1px solid rgba(255, 0, 85, 0.35)',
+                        color: '#ff0055',
+                        fontFamily: 'var(--font-mono)',
+                        fontSize: '0.72rem',
+                        padding: '7px 10px',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = 'rgba(255, 0, 85, 0.25)';
+                        e.currentTarget.style.boxShadow = '0 0 10px rgba(255, 0, 85, 0.4)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'rgba(255, 0, 85, 0.1)';
+                        e.currentTarget.style.boxShadow = 'none';
+                      }}
+                    >
+                      🗑️
                     </button>
                   </>
                 ) : (

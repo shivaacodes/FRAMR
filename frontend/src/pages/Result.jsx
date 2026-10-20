@@ -2,8 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import InstagramReel from '../components/InstagramReel';
 import FeedbackLoop from '../components/FeedbackLoop';
-
-const API_BASE = 'http://localhost:8000';
+import { API_BASE } from '../config';
 
 export default function Result() {
   const { id } = useParams();
@@ -55,7 +54,8 @@ export default function Result() {
       });
       const data = await res.json();
       if (data.export_url) {
-        const fileRes = await fetch(data.export_url);
+        const downloadUrl = data.export_url.startsWith('http') ? data.export_url : `${API_BASE}${data.export_url}`;
+        const fileRes = await fetch(downloadUrl);
         const blob = await fileRes.blob();
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -96,12 +96,12 @@ export default function Result() {
   };
 
   return (
-    <div style={{ maxWidth: '960px', margin: '0 auto', padding: '30px 20px', width: '100%', position: 'relative', zIndex: 10 }}>
+    <div style={{ maxWidth: '960px', margin: '0 auto', padding: 'clamp(16px, 3vw, 30px) clamp(10px, 2.5vw, 20px)', width: '100%', position: 'relative', zIndex: 10 }}>
       <section 
         className="cyber-card cyber-cut" 
         style={{ 
           background: 'rgba(16, 12, 28, 0.94)', 
-          padding: '24px', 
+          padding: 'clamp(14px, 2.5vw, 24px)', 
           borderRadius: '12px',
           marginBottom: '24px'
         }}

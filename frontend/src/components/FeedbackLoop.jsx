@@ -1,6 +1,5 @@
 import { useState } from 'react';
-
-const API_BASE = 'http://localhost:8000';
+import { API_BASE } from '../config';
 
 export default function FeedbackLoop({ videoId, initialRating = 5, initialSensitivity = 1.0 }) {
   const [rating, setRating] = useState(initialRating || 5);

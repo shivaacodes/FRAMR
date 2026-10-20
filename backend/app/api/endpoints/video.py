@@ -79,6 +79,69 @@ def get_video(video_id: int, db: Session = Depends(get_db)):
         return {"error": "Video not found"}
     return video
 
+@router.delete("/{video_id}")
+def delete_video(video_id: int, db: Session = Depends(get_db)):
+    video = db.query(models.Video).filter(models.Video.id == video_id).first()
+    if not video:
+        return {"error": "Video not found"}
+    
+    # 1. Clean up original video file
+    if video.original_path and os.path.exists(video.original_path):
+        try:
+            os.remove(video.original_path)
+        except Exception as e:
+            print(f"Error removing original file {video.original_path}: {e}")
+            
+    # 2. Clean up highlight video file
+    if video.highlight_path:
+        hl_path = os.path.join(settings.HIGHLIGHTS_DIR, video.highlight_path)
+        if os.path.exists(hl_path):
+            try:
+                os.remove(hl_path)
+            except Exception as e:
+                print(f"Error removing highlight file {hl_path}: {e}")
+                
+    # 3. Clean up log file
+    log_path = os.path.join(settings.BASE_DIR, "data", "logs", f"video_{video_id}.log")
+    if os.path.exists(log_path):
+        try:
+            os.remove(log_path)
+        except Exception as e:
+            print(f"Error removing log file {log_path}: {e}")
+            
+    # 4. Remove record from SQLite DB
+    db.delete(video)
+    db.commit()
+    return {"message": f"Video {video_id} successfully deleted", "id": video_id}
+
+@router.delete("/purge-all")
+@router.post("/purge-all")
+def purge_all_videos(db: Session = Depends(get_db)):
+    videos = db.query(models.Video).all()
+    count = len(videos)
+    for video in videos:
+        if video.original_path and os.path.exists(video.original_path):
+            try:
+                os.remove(video.original_path)
+            except Exception:
+                pass
+        if video.highlight_path:
+            hl_path = os.path.join(settings.HIGHLIGHTS_DIR, video.highlight_path)
+            if os.path.exists(hl_path):
+                try:
+                    os.remove(hl_path)
+                except Exception:
+                    pass
+        log_path = os.path.join(settings.BASE_DIR, "data", "logs", f"video_{video.id}.log")
+        if os.path.exists(log_path):
+            try:
+                os.remove(log_path)
+            except Exception:
+                pass
+        db.delete(video)
+    db.commit()
+    return {"message": "All vault records purged successfully", "count": count}
+
 class FeedbackRequest(BaseModel):
     rating: int
     feedback: str | None = None
@@ -200,9 +263,8 @@ def export_video(video_id: int, req: ExportRequest, db: Session = Depends(get_db
             req.speed,
             req.soundtrack
         )
-        # Update db or just return the new file path?
-        # Let's just return the URL so the frontend can download it.
-        return {"export_url": f"http://localhost:8000/highlights/{new_filename}"}
+        # Return relative URL so frontend can prepend API_BASE in any environment
+        return {"export_url": f"/highlights/{new_filename}", "filename": new_filename}
     except Exception as e:
         print(f"Export failed: {e}")
         return {"error": "Export failed"}

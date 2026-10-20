@@ -120,14 +120,16 @@ export default function InstagramReel({
       <div 
         style={{
           position: 'relative',
-          width: '380px',
-          height: '740px',
+          width: '100%',
+          maxWidth: '380px',
+          height: 'clamp(580px, 80vh, 740px)',
           background: '#000',
-          borderRadius: '48px',
-          border: '12px solid #201a24',
+          borderRadius: 'clamp(32px, 6vw, 48px)',
+          border: 'clamp(6px, 1.8vw, 12px) solid #201a24',
           boxShadow: '0 25px 60px -15px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(255, 255, 255, 0.1)',
           overflow: 'hidden',
-          userSelect: 'none'
+          userSelect: 'none',
+          margin: '0 auto'
         }}
       >
         {/* Dynamic Island / Notch */}

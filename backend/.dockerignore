@@ -1,0 +1,13 @@
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.coverage
+data/uploads/*
+data/highlights/*
+data/logs/*
+!data/uploads/.gitkeep
+!data/highlights/.gitkeep
+!data/music/*.wav
