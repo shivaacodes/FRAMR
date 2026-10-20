@@ -202,50 +202,55 @@ export default function Editor() {
   const currentClipIndex = duration > 0 ? Math.min(clips.length - 1, Math.floor((currentTime / duration) * clips.length)) : 0;
 
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'var(--surface)', display: 'flex', flexDirection: 'column' }}>
-      <div className="editor-panel" style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%', border: 'none', borderTop: '3px solid var(--magenta)' }}>
+    <div style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'var(--render-canvas)', display: 'flex', flexDirection: 'column' }}>
+      <div className="editor-panel" style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%', border: 'none', borderTop: '2px solid var(--render-purple)' }}>
         
         {/* Top Header */}
-        <div className="editor-panel__header" style={{ padding: '12px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px', borderBottom: '1px solid var(--gray-dim)', background: 'var(--ink)' }}>
+        <div className="editor-panel__header" style={{
+          padding: '12px 24px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '12px',
+          borderBottom: '1px solid var(--render-border)',
+          background: 'var(--render-surface)'
+        }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <span className="editor-panel__dot" style={{ width: '10px', height: '10px', background: 'var(--lime)' }}></span>
-            <h3 className="editor-panel__title" style={{ margin: 0, fontSize: '1rem', letterSpacing: '1px' }}>
-              FRAMR EDIT STUDIO // PRO SUITE
+            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--render-purple-light)' }} />
+            <h3 style={{
+              margin: 0,
+              fontSize: '1rem',
+              fontWeight: 700,
+              fontFamily: 'var(--font-display)',
+              letterSpacing: '-0.01em',
+              color: 'var(--text-primary)'
+            }}>
+              FRAMR Studio Pro // Timeline &amp; Compositing
             </h3>
           </div>
-          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-            <button className="btn-secondary" onClick={() => navigate(`/result/${id}`)} disabled={isExporting} style={{ padding: '6px 12px', fontSize: '0.8rem' }}>
+          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
+            <button
+              className="btn-render-outline"
+              onClick={() => navigate(`/result/${id}`)}
+              disabled={isExporting}
+              style={{ padding: '7px 14px', fontSize: '0.78rem' }}
+            >
               Cancel
             </button>
             <button
-              className="btn-download"
+              className="btn-render-primary"
               onClick={() => handleExport('9/16')}
               disabled={isExporting}
-              style={{
-                background: 'linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888)',
-                color: '#fff',
-                fontWeight: 'bold',
-                padding: '6px 14px',
-                fontSize: '0.8rem',
-                border: 'none',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px'
-              }}
+              style={{ padding: '7px 16px', fontSize: '0.78rem' }}
             >
-              <span>📸</span> Export 9:16 Reel
+              <span>Export 9:16 Reel</span>
             </button>
             <button
-              className="btn-download"
+              className="btn-render-white"
               onClick={() => handleExport()}
               disabled={isExporting}
-              style={{
-                background: 'var(--lime)',
-                color: 'var(--black)',
-                fontWeight: 'bold',
-                padding: '6px 14px',
-                fontSize: '0.8rem'
-              }}
+              style={{ padding: '7px 16px', fontSize: '0.78rem' }}
             >
               {isExporting ? 'Exporting...' : 'Export Changes'}
             </button>
@@ -258,16 +263,27 @@ export default function Editor() {
           style={{ 
             flex: 1, 
             display: 'grid', 
-            gap: '16px', 
-            padding: '16px', 
+            gridTemplateColumns: '1fr 320px',
+            gap: '20px', 
+            padding: '20px', 
             minHeight: 0, 
             overflow: 'auto',
-            background: 'var(--surface)'
+            background: 'var(--render-canvas)'
           }}
         >
           {/* Main Video & Timeline Area */}
           <div className="editor-main" style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0 }}>
-            <div className="editor-video-container" style={{ flex: 1, background: '#0a060e', padding: '16px', display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 0, borderRadius: '8px' }}>
+            <div className="editor-video-container" style={{
+              flex: 1,
+              background: '#040407',
+              padding: '16px',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              minHeight: 0,
+              borderRadius: '6px',
+              border: '1px solid var(--render-border)'
+            }}>
               
               <div style={{
                 position: 'relative',
@@ -278,8 +294,8 @@ export default function Editor() {
                 width: aspectRatio === '9/16' ? 'auto' : '100%',
                 overflow: 'hidden',
                 borderRadius: '4px',
-                boxShadow: '0 8px 30px rgba(0,0,0,0.8)',
-                border: '1px solid var(--gray-dim)',
+                boxShadow: '0 12px 40px rgba(0,0,0,0.85)',
+                border: '1px solid var(--render-border)',
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'center'
@@ -317,12 +333,13 @@ export default function Editor() {
                     left: '50%',
                     transform: 'translate(-50%, -50%)',
                     fontFamily: 'var(--font-display)',
-                    fontSize: '2.4rem',
+                    fontSize: '2rem',
+                    fontWeight: 700,
                     color: 'white',
-                    textShadow: '3px 3px 0 #000, -3px -3px 0 #000, 3px -3px 0 #000, -3px 3px 0 #000',
+                    textShadow: '0 2px 10px rgba(0,0,0,0.9)',
                     pointerEvents: 'none',
                     textAlign: 'center',
-                    letterSpacing: '1px'
+                    letterSpacing: '-0.01em'
                   }}>
                     {overlayText}
                   </div>
@@ -331,12 +348,26 @@ export default function Editor() {
             </div>
             
             {/* Interactive Timeline with Drag-and-Drop */}
-            <div className="editor-timeline" style={{ padding: '16px 20px', background: 'var(--ink)', borderRadius: '8px', marginTop: '14px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                <span className="timeline-label" style={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <span>↕️</span> AI Highlights Sequence (Drag blocks to rearrange)
+            <div className="editor-timeline" style={{
+              padding: '16px 20px',
+              background: 'var(--render-surface)',
+              border: '1px solid var(--render-border)',
+              borderRadius: '6px',
+              marginTop: '16px'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
+                <span style={{
+                  fontSize: '0.78rem',
+                  fontWeight: 600,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  fontFamily: 'var(--font-ui)',
+                  color: 'var(--text-primary)'
+                }}>
+                  Highlight Sequences (Drag blocks to reorder)
                 </span>
-                <span className="timeline-time" style={{ fontFamily: 'var(--font-mono)', color: 'var(--yellow)' }}>
+                <span className="timeline-time" style={{ fontFamily: 'var(--font-mono)', color: 'var(--render-purple-accent)', fontSize: '0.76rem' }}>
                   {formatTime(currentTime)} / {formatTime(duration)}
                 </span>
               </div>
@@ -345,7 +376,18 @@ export default function Editor() {
                 className="timeline-track" 
                 ref={trackRef} 
                 onClick={handleTrackClick}
-                style={{ position: 'relative', height: '52px', background: 'rgba(0,0,0,0.6)', borderRadius: '6px', cursor: 'pointer', overflow: 'hidden', display: 'flex', gap: '6px', padding: '3px' }}
+                style={{
+                  position: 'relative',
+                  height: '52px',
+                  background: '#040407',
+                  border: '1px solid var(--render-border)',
+                  borderRadius: '5px',
+                  cursor: 'pointer',
+                  overflow: 'hidden',
+                  display: 'flex',
+                  gap: '6px',
+                  padding: '4px'
+                }}
               >
                 {/* Playhead */}
                 <div 
@@ -355,10 +397,10 @@ export default function Editor() {
                     top: 0, 
                     bottom: 0, 
                     left: `${playheadPercent}%`, 
-                    width: '3px', 
-                    background: 'var(--yellow)', 
+                    width: '2px', 
+                    background: 'var(--render-purple-light)', 
                     zIndex: 10,
-                    boxShadow: '0 0 10px var(--yellow)',
+                    boxShadow: '0 0 8px var(--render-purple)',
                     pointerEvents: 'none'
                   }} 
                 />
@@ -374,8 +416,8 @@ export default function Editor() {
                     style={{
                       flex: 1,
                       height: '100%',
-                      background: index === currentClipIndex ? 'rgba(242, 194, 48, 0.18)' : 'rgba(255, 255, 255, 0.04)',
-                      border: index === currentClipIndex ? '2px solid var(--lime)' : '1px solid var(--gray-dim)',
+                      background: index === currentClipIndex ? 'var(--render-purple-glow)' : 'rgba(255, 255, 255, 0.03)',
+                      border: index === currentClipIndex ? '1px solid var(--render-purple-light)' : '1px solid var(--render-border)',
                       borderRadius: '4px',
                       display: 'flex',
                       alignItems: 'center',
@@ -383,12 +425,17 @@ export default function Editor() {
                       position: 'relative',
                       cursor: 'grab',
                       userSelect: 'none',
-                      transition: 'all 0.2s'
+                      transition: 'all 0.15s'
                     }}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <span style={{ fontSize: '0.8rem', color: '#888' }}>⋮⋮</span>
-                      <span style={{ fontWeight: 'bold', color: index === currentClipIndex ? 'var(--lime)' : '#bbb', fontSize: '0.8rem', fontFamily: 'var(--font-mono)' }}>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>::</span>
+                      <span style={{
+                        fontWeight: 600,
+                        color: index === currentClipIndex ? 'var(--render-purple-accent)' : 'var(--text-secondary)',
+                        fontSize: '0.76rem',
+                        fontFamily: 'var(--font-mono)'
+                      }}>
                         SCENE #{clip.originalIndex + 1}
                       </span>
                     </div>
@@ -399,11 +446,21 @@ export default function Editor() {
           </div>
           
           {/* Side Controls Panel */}
-          <div className="editor-controls" style={{ overflowY: 'auto', maxHeight: '100%', borderRadius: '8px', padding: '18px', background: 'var(--ink)' }}>
+          <div className="editor-controls" style={{
+            overflowY: 'auto',
+            maxHeight: '100%',
+            borderRadius: '6px',
+            padding: '20px',
+            background: 'var(--render-surface)',
+            border: '1px solid var(--render-border)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '20px'
+          }}>
             
-            {/* Speed Control (Feature 2) */}
+            {/* Speed Control */}
             <div className="control-group">
-              <label className="control-label">Speed &amp; Slow-Mo</label>
+              <label className="control-label">Speed &amp; Motion Curve</label>
               <div className="control-row">
                 <button className={`control-btn ${speed === 0.5 ? 'control-btn--active' : ''}`} onClick={() => handleSpeedChange(0.5)}>0.5x Slow-Mo</button>
                 <button className={`control-btn ${speed === 0.75 ? 'control-btn--active' : ''}`} onClick={() => handleSpeedChange(0.75)}>0.75x</button>
@@ -413,20 +470,20 @@ export default function Editor() {
               </div>
             </div>
 
-            {/* AI Soundtracks (Feature 3) */}
+            {/* AI Soundtracks */}
             <div className="control-group">
-              <label className="control-label">AI Soundtracks (Auto Ducking)</label>
+              <label className="control-label">BGM Soundtrack (Auto-Ducked)</label>
               <div className="control-row">
                 <button className={`control-btn ${soundtrack === 'none' ? 'control-btn--active' : ''}`} onClick={() => handleSoundtrackChange('none')}>None</button>
-                <button className={`control-btn ${soundtrack === 'cyber_beat' ? 'control-btn--active' : ''}`} onClick={() => handleSoundtrackChange('cyber_beat')}>⚡ Cyber Beat</button>
-                <button className={`control-btn ${soundtrack === 'epic_action' ? 'control-btn--active' : ''}`} onClick={() => handleSoundtrackChange('epic_action')}>🔥 Epic Action</button>
-                <button className={`control-btn ${soundtrack === 'lofi_chill' ? 'control-btn--active' : ''}`} onClick={() => handleSoundtrackChange('lofi_chill')}>☕ Lo-Fi Chill</button>
+                <button className={`control-btn ${soundtrack === 'cyber_beat' ? 'control-btn--active' : ''}`} onClick={() => handleSoundtrackChange('cyber_beat')}>Cyber Beat</button>
+                <button className={`control-btn ${soundtrack === 'epic_action' ? 'control-btn--active' : ''}`} onClick={() => handleSoundtrackChange('epic_action')}>Epic Action</button>
+                <button className={`control-btn ${soundtrack === 'lofi_chill' ? 'control-btn--active' : ''}`} onClick={() => handleSoundtrackChange('lofi_chill')}>Lo-Fi Chill</button>
               </div>
             </div>
 
             {/* Transitions */}
             <div className="control-group">
-              <label className="control-label">Transitions</label>
+              <label className="control-label">Scene Transitions</label>
               <div className="control-row">
                 <button className={`control-btn ${transition === 'none' ? 'control-btn--active' : ''}`} onClick={() => setTransition('none')}>Cut</button>
                 <button className={`control-btn ${transition === 'fade' ? 'control-btn--active' : ''}`} onClick={() => setTransition('fade')}>Fade</button>
@@ -437,39 +494,39 @@ export default function Editor() {
 
             {/* Aspect Ratio */}
             <div className="control-group">
-              <label className="control-label">Aspect Ratio</label>
+              <label className="control-label">Aspect Ratio Framing</label>
               <div className="control-row">
-                <button className={`control-btn ${aspectRatio === '16/9' ? 'control-btn--active' : ''}`} onClick={() => setAspectRatio('16/9')}>16:9</button>
-                <button className={`control-btn ${aspectRatio === '9/16' ? 'control-btn--active' : ''}`} onClick={() => setAspectRatio('9/16')}>9:16</button>
-                <button className={`control-btn ${aspectRatio === '1/1' ? 'control-btn--active' : ''}`} onClick={() => setAspectRatio('1/1')}>1:1</button>
+                <button className={`control-btn ${aspectRatio === '16/9' ? 'control-btn--active' : ''}`} onClick={() => setAspectRatio('16/9')}>16:9 Landscape</button>
+                <button className={`control-btn ${aspectRatio === '9/16' ? 'control-btn--active' : ''}`} onClick={() => setAspectRatio('9/16')}>9:16 Vertical Reel</button>
+                <button className={`control-btn ${aspectRatio === '1/1' ? 'control-btn--active' : ''}`} onClick={() => setAspectRatio('1/1')}>1:1 Square</button>
               </div>
             </div>
             
-            {/* Filters */}
+            {/* Color Filters */}
             <div className="control-group">
-              <label className="control-label">Filters</label>
+              <label className="control-label">Color Grading</label>
               <div className="control-row">
-                <button className={`control-btn ${filter === 'none' ? 'control-btn--active' : ''}`} onClick={() => setFilter('none')}>None</button>
-                <button className={`control-btn ${filter === 'grayscale' ? 'control-btn--active' : ''}`} onClick={() => setFilter('grayscale')}>Grayscale</button>
+                <button className={`control-btn ${filter === 'none' ? 'control-btn--active' : ''}`} onClick={() => setFilter('none')}>Original</button>
+                <button className={`control-btn ${filter === 'grayscale' ? 'control-btn--active' : ''}`} onClick={() => setFilter('grayscale')}>Monochrome</button>
                 <button className={`control-btn ${filter === 'vibrant' ? 'control-btn--active' : ''}`} onClick={() => setFilter('vibrant')}>Vibrant</button>
-                <button className={`control-btn ${filter === 'vintage' ? 'control-btn--active' : ''}`} onClick={() => setFilter('vintage')}>Vintage</button>
+                <button className={`control-btn ${filter === 'vintage' ? 'control-btn--active' : ''}`} onClick={() => setFilter('vintage')}>Vintage Film</button>
               </div>
             </div>
             
             {/* Adjustments */}
             <div className="control-group">
-              <label className="control-label">Adjustments</label>
-              <div className="control-row">
-                <span className="timeline-label" style={{width: '100%'}}>Brightness ({brightness}%)</span>
+              <label className="control-label">Luminance &amp; Tone</label>
+              <div className="control-row" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)' }}>Brightness ({brightness}%)</span>
                 <input type="range" className="control-slider" min="0" max="200" value={brightness} onChange={e => setBrightness(e.target.value)} />
                 
-                <span className="timeline-label" style={{width: '100%', marginTop: '6px'}}>Contrast ({contrast}%)</span>
+                <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)' }}>Contrast ({contrast}%)</span>
                 <input type="range" className="control-slider" min="0" max="200" value={contrast} onChange={e => setContrast(e.target.value)} />
                 
-                <span className="timeline-label" style={{width: '100%', marginTop: '6px'}}>Saturation ({saturation}%)</span>
+                <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)' }}>Saturation ({saturation}%)</span>
                 <input type="range" className="control-slider" min="0" max="200" value={saturation} onChange={e => setSaturation(e.target.value)} />
                 
-                <span className="timeline-label" style={{width: '100%', marginTop: '6px'}}>Blur ({blur}px)</span>
+                <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)' }}>Blur ({blur}px)</span>
                 <input type="range" className="control-slider" min="0" max="20" value={blur} onChange={e => setBlur(e.target.value)} />
               </div>
             </div>
@@ -486,7 +543,7 @@ export default function Editor() {
 
             {/* Audio & Text */}
             <div className="control-group">
-              <label className="control-label">Audio &amp; Text</label>
+              <label className="control-label">Audio &amp; Text Overlay</label>
               <div className="control-row">
                 <button className={`control-btn ${isMuted ? 'control-btn--active' : ''}`} onClick={() => {
                   setIsMuted(!isMuted);
@@ -503,14 +560,17 @@ export default function Editor() {
                   onChange={(e) => setOverlayText(e.target.value)}
                   style={{
                     width: '100%',
-                    padding: '8px',
-                    background: 'var(--surface)',
-                    border: '1px solid var(--gray-dim)',
+                    padding: '8px 12px',
+                    background: 'var(--render-card)',
+                    border: '1px solid var(--render-border)',
                     color: 'white',
                     fontFamily: 'var(--font-ui)',
                     fontSize: '0.8rem',
-                    borderRadius: '4px'
+                    borderRadius: '4px',
+                    outline: 'none'
                   }}
+                  onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--render-purple-light)'; }}
+                  onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--render-border)'; }}
                 />
               </div>
             </div>

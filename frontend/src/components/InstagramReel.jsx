@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 
 export default function InstagramReel({ 
   videoSrc, 
-  caption = "AI generated highlight reel ⚡ Extracted with multi-modal CV & audio energy. #FRAMR #AI #Reels #Highlight",
+  caption = "AI generated highlight reel. Extracted with multi-modal CV & audio energy. #FRAMR #AI #Reels #Highlight",
   soundtrackName = "Cyber Beat · Original Audio",
   username = "framr.ai",
   initialLikes = 28420,
@@ -20,9 +20,9 @@ export default function InstagramReel({
   const [heartPos, setHeartPos] = useState({ x: 50, y: 50 });
   const [showComments, setShowComments] = useState(false);
   const [commentsList, setCommentsList] = useState([
-    { id: 1, user: 'sarah_films', text: 'The cut at 0:04 is insane 🔥', time: '2h', likes: 45 },
+    { id: 1, user: 'sarah_films', text: 'The cut at 0:04 is seamless.', time: '2h', likes: 45 },
     { id: 2, user: 'alex_creator', text: 'Which model did you use for the motion extraction?', time: '4h', likes: 18 },
-    { id: 3, user: 'pro_editor', text: 'The beat sync on this transition is butter clean 👏', time: '6h', likes: 89 },
+    { id: 3, user: 'pro_editor', text: 'The beat sync on this transition is butter clean.', time: '6h', likes: 89 },
     { id: 4, user: 'tech_insider', text: 'Automated video highlighting done right!', time: '1d', likes: 12 }
   ]);
   const [newComment, setNewComment] = useState('');

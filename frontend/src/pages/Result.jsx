@@ -8,21 +8,19 @@ export default function Result() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [videoData, setVideoData] = useState(null);
-  const [viewMode, setViewMode] = useState('reel'); // 'reel' (default) or 'wide'
+  const [viewMode, setViewMode] = useState('reel');
   const [isExportingReel, setIsExportingReel] = useState(false);
 
   useEffect(() => {
     fetch(`${API_BASE}/api/v1/videos/${id}`)
       .then(r => r.json())
-      .then(d => {
-        if (d.status === 'COMPLETED') setVideoData(d);
-      })
+      .then(d => { if (d.status === 'COMPLETED') setVideoData(d); })
       .catch(e => console.error(e));
   }, [id]);
 
   if (!videoData) {
     return (
-      <div style={{ padding: 60, textAlign: 'center', color: '#00f0ff', fontFamily: 'var(--font-mono)' }}>
+      <div style={{ padding: 60, textAlign: 'center', color: 'var(--render-purple-light)', fontFamily: 'var(--font-mono)', fontSize: '0.85rem' }}>
         Retrieving highlight stream package...
       </div>
     );
@@ -30,7 +28,6 @@ export default function Result() {
 
   const highlightUrl = `${API_BASE}/highlights/${videoData.highlight_path}`;
 
-  // Export 9:16 vertical Instagram Reel MP4
   const handleExportReel = async () => {
     setIsExportingReel(true);
     try {
@@ -38,18 +35,10 @@ export default function Result() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          aspect_ratio: '9/16',
-          filter_type: 'none',
-          brightness: 100,
-          contrast: 100,
-          saturation: 100,
-          blur: 0,
-          flip_h: false,
-          transition: 'fade',
-          speed: 1.0,
-          soundtrack: 'cyber_beat',
-          is_muted: false,
-          overlay_text: ''
+          aspect_ratio: '9/16', filter_type: 'none',
+          brightness: 100, contrast: 100, saturation: 100, blur: 0,
+          flip_h: false, transition: 'fade', speed: 1.0,
+          soundtrack: 'cyber_beat', is_muted: false, overlay_text: ''
         })
       });
       const data = await res.json();
@@ -66,17 +55,16 @@ export default function Result() {
         a.click();
         window.URL.revokeObjectURL(url);
       } else {
-        alert("Reel export failed: " + (data.error || "Unknown error"));
+        alert('Reel export failed: ' + (data.error || 'Unknown error'));
       }
     } catch (err) {
       console.error(err);
-      alert("An error occurred during Reel export.");
+      alert('An error occurred during Reel export.');
     } finally {
       setIsExportingReel(false);
     }
   };
 
-  // Download raw video
   const handleDownloadRaw = async (e) => {
     e.preventDefault();
     try {
@@ -95,132 +83,125 @@ export default function Result() {
     }
   };
 
+  const tabStyle = (isActive) => ({
+    background: isActive ? 'var(--render-purple-glow)' : 'transparent',
+    color: isActive ? '#ffffff' : 'var(--text-secondary)',
+    border: '1px solid ' + (isActive ? 'var(--render-border-hover)' : 'transparent'),
+    fontWeight: isActive ? 600 : 400,
+    fontSize: '0.74rem',
+    fontFamily: 'var(--font-ui)',
+    padding: '6px 14px',
+    borderRadius: '4px',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '6px',
+    transition: 'all 0.15s',
+  });
+
   return (
-    <div style={{ maxWidth: '960px', margin: '0 auto', padding: 'clamp(16px, 3vw, 30px) clamp(10px, 2.5vw, 20px)', width: '100%', position: 'relative', zIndex: 10 }}>
-      <section 
-        className="cyber-card cyber-cut" 
-        style={{ 
-          background: 'rgba(16, 12, 28, 0.94)', 
-          padding: 'clamp(14px, 2.5vw, 24px)', 
-          borderRadius: '12px',
-          marginBottom: '24px'
-        }}
+    <div style={{
+      maxWidth: '1080px',
+      margin: '0 auto',
+      padding: 'clamp(20px, 4vw, 44px) clamp(16px, 3vw, 32px)',
+      width: '100%',
+      position: 'relative',
+      zIndex: 10
+    }}>
+      <section
+        className="render-card"
+        style={{ padding: 'clamp(18px, 3vw, 32px)', marginBottom: '32px' }}
       >
-        {/* Header with Switcher Tabs */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '22px', flexWrap: 'wrap', gap: '12px' }}>
+        {/* Header */}
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '24px',
+          flexWrap: 'wrap',
+          gap: '16px'
+        }}>
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#39ff14', boxShadow: '0 0 10px #39ff14' }} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+              <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--render-emerald)' }} />
               <h2 style={{
                 fontFamily: 'var(--font-display)',
-                fontSize: '1.4rem',
-                letterSpacing: '1.5px',
-                color: '#fff',
+                fontSize: '1.3rem',
+                fontWeight: 700,
+                letterSpacing: '-0.01em',
+                color: 'var(--text-primary)',
                 margin: 0
               }}>
-                STAGE 03 // INSTAGRAM REEL SHOWCASE
+                Synthesized Highlight Reel
               </h2>
             </div>
-            <div style={{ fontSize: '0.75rem', color: '#8082a6', fontFamily: 'var(--font-mono)', marginTop: '4px', marginLeft: '16px' }}>
-              VIDEO: {videoData.filename} · READY FOR SOCIAL STREAM
+            <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', marginLeft: '16px' }}>
+              {videoData.filename} · Ready for social broadcast
             </div>
           </div>
 
           {/* View Mode Toggle */}
-          <div style={{ display: 'flex', gap: '6px', background: 'rgba(0,0,0,0.6)', padding: '4px', borderRadius: '30px', border: '1px solid rgba(0, 240, 255, 0.25)' }}>
-            <button
-              onClick={() => setViewMode('reel')}
-              style={{
-                background: viewMode === 'reel' ? 'linear-gradient(90deg, #00f0ff, #0088ff)' : 'transparent',
-                color: viewMode === 'reel' ? '#000' : '#aaa',
-                border: 'none',
-                fontWeight: 700,
-                fontSize: '0.72rem',
-                fontFamily: 'var(--font-mono)',
-                padding: '6px 14px',
-                borderRadius: '20px',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                boxShadow: viewMode === 'reel' ? '0 0 12px rgba(0, 240, 255, 0.4)' : 'none'
-              }}
-            >
-              <span>📱</span> REEL (9:16 VERTICAL)
+          <div style={{
+            display: 'flex',
+            gap: '4px',
+            background: 'var(--render-surface)',
+            padding: '3px',
+            borderRadius: '6px',
+            border: '1px solid var(--render-border)'
+          }}>
+            <button onClick={() => setViewMode('reel')} style={tabStyle(viewMode === 'reel')}>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
+              <span>9:16 Vertical Reel</span>
             </button>
-            <button
-              onClick={() => setViewMode('wide')}
-              style={{
-                background: viewMode === 'wide' ? 'linear-gradient(90deg, #00f0ff, #0088ff)' : 'transparent',
-                color: viewMode === 'wide' ? '#000' : '#aaa',
-                border: 'none',
-                fontWeight: 700,
-                fontSize: '0.72rem',
-                fontFamily: 'var(--font-mono)',
-                padding: '6px 14px',
-                borderRadius: '20px',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                boxShadow: viewMode === 'wide' ? '0 0 12px rgba(0, 240, 255, 0.4)' : 'none'
-              }}
-            >
-              <span>🖥️</span> 16:9 LANDSCAPE
+            <button onClick={() => setViewMode('wide')} style={tabStyle(viewMode === 'wide')}>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H3V5h18v14z"/></svg>
+              <span>16:9 Landscape Raw</span>
             </button>
           </div>
         </div>
 
-        {/* Content based on View Mode */}
+        {/* Content Viewer */}
         {viewMode === 'reel' ? (
-          <div style={{ display: 'flex', justifyContent: 'center', padding: '14px 0 20px 0' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', padding: '10px 0 24px 0' }}>
             <InstagramReel
               videoSrc={highlightUrl}
               username="framr.ai"
-              caption={`AI auto-extracted highlight reel from ${videoData.filename} ⚡ Peak motion & audio transients stitched seamlessly! #FRAMR #AI #Reels #Highlight`}
-              soundtrackName="Cyber Beat · FRAMR AI Mix (Original audio)"
+              caption={`AI auto-extracted highlight reel from ${videoData.filename}. Peak motion & audio transients stitched seamlessly. #FRAMR #AI #Reels`}
+              soundtrackName="Cyber Beat · FRAMR AI Mix"
               onExport={handleExportReel}
               isExporting={isExportingReel}
             />
           </div>
         ) : (
           <div className="output-zone" style={{ padding: 0, background: 'transparent' }}>
-            <div className="video-result" style={{ borderRadius: '10px', overflow: 'hidden', border: '1px solid rgba(0, 240, 255, 0.3)', boxShadow: '0 8px 30px rgba(0,0,0,0.8)' }}>
+            <div className="video-result" style={{ border: '1px solid var(--render-border)', borderRadius: '6px', overflow: 'hidden' }}>
               <video
                 className="video-player"
                 src={highlightUrl}
                 controls
                 autoPlay
-                style={{ width: '100%', maxHeight: '460px', background: '#000', display: 'block' }}
+                style={{ width: '100%', maxHeight: '480px', background: '#000', display: 'block' }}
               />
-              <div className="video-bar" style={{ padding: '16px', background: '#120c1a', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+              <div className="video-bar" style={{ background: 'var(--render-surface)', borderTop: '1px solid var(--render-border)' }}>
                 <div className="video-bar__left">
-                  <span className="video-badge" style={{ background: '#00f0ff', color: '#000', fontWeight: 'bold' }}>AI COMPILATION</span>
-                  <span className="video-filename" style={{ marginLeft: '10px', fontFamily: 'var(--font-mono)', color: '#fff' }}>{videoData.filename}</span>
+                  <span className="render-badge">
+                    ● Available
+                  </span>
+                  <span className="video-filename">{videoData.filename}</span>
                 </div>
-                <div className="video-bar__actions" style={{ display: 'flex', gap: '10px' }}>
+                <div className="video-bar__actions">
                   <button
-                    className="btn-download"
+                    className="btn-render-primary"
                     onClick={() => navigate(`/editor/${id}`)}
-                    style={{
-                      background: 'linear-gradient(90deg, #00f0ff, #0088ff)',
-                      color: '#000',
-                      fontWeight: 'bold',
-                      padding: '8px 18px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '6px',
-                      borderRadius: '6px',
-                      border: 'none',
-                      cursor: 'pointer'
-                    }}
+                    style={{ padding: '8px 16px', fontSize: '0.78rem' }}
                   >
-                    <span>⚡</span> OPEN IN EDIT STUDIO
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg>
+                    <span>Open in Studio Pro</span>
                   </button>
-                  <button 
-                    className="btn-secondary" 
-                    onClick={handleDownloadRaw} 
-                    style={{ padding: '8px 16px', borderRadius: '6px' }}
+                  <button
+                    className="btn-render-outline"
+                    onClick={handleDownloadRaw}
+                    style={{ padding: '8px 16px', fontSize: '0.78rem' }}
                   >
                     Download 16:9
                   </button>
@@ -230,62 +211,41 @@ export default function Result() {
           </div>
         )}
 
-        {/* Quick Navigation Toolbar */}
+        {/* Navigation Toolbar */}
         <div style={{
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          marginTop: '20px',
+          marginTop: '24px',
           paddingTop: '16px',
-          borderTop: '1px solid rgba(255,255,255,0.08)',
+          borderTop: '1px solid var(--render-border)',
           flexWrap: 'wrap',
-          gap: '12px'
+          gap: '12px',
         }}>
           <div style={{ display: 'flex', gap: '10px' }}>
-            <button 
-              className="btn-secondary" 
-              onClick={() => navigate('/')} 
-              style={{ padding: '8px 16px', fontSize: '0.8rem' }}
-            >
-              ← Ingest New Video
+            <button className="btn-render-outline" onClick={() => navigate('/ingest')} style={{ padding: '8px 16px', fontSize: '0.78rem' }}>
+              Ingest New Video
             </button>
-            <button 
-              className="btn-secondary" 
-              onClick={() => navigate('/gallery')} 
-              style={{ padding: '8px 16px', fontSize: '0.8rem' }}
-            >
-              Neural Vault
+            <button className="btn-render-outline" onClick={() => navigate('/gallery')} style={{ padding: '8px 16px', fontSize: '0.78rem' }}>
+              Reel Vault
             </button>
           </div>
 
           <button
             onClick={() => navigate(`/editor/${id}`)}
-            style={{
-              padding: '8px 22px',
-              fontSize: '0.82rem',
-              background: 'transparent',
-              border: '1px solid #00f0ff',
-              color: '#00f0ff',
-              fontFamily: 'var(--font-mono)',
-              fontWeight: 700,
-              borderRadius: '6px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              boxShadow: '0 0 12px rgba(0, 240, 255, 0.3)'
-            }}
+            className="btn-render-primary"
+            style={{ padding: '9px 20px', fontSize: '0.8rem' }}
           >
-            <span>🎛️</span> OPEN EDIT STUDIO PRO
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+            <span>Open Studio Pro</span>
           </button>
         </div>
       </section>
 
-      {/* Interactive AI Feedback Loop & Calibration */}
-      <FeedbackLoop 
-        videoId={id} 
-        initialRating={videoData.rating} 
-        initialSensitivity={videoData.sensitivity} 
+      <FeedbackLoop
+        videoId={id}
+        initialRating={videoData.rating}
+        initialSensitivity={videoData.sensitivity}
       />
     </div>
   );
