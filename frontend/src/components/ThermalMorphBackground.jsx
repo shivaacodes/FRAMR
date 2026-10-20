@@ -155,47 +155,6 @@ function ThermalMorphBackground() {
       ctx.lineWidth = 35 * beatPulse;
       ctx.stroke();
 
-      // ─── SHAPE 4: Additional Flowing Diagonal Chromatic Ribbon Wave ───
-      // Sweeps through the lower/mid region across the screen
-      const t4 = elapsed * 0.38 + 3.2;
-      const s4X = -width * 0.05 + Math.sin(t4 * 0.7) * 60;
-      const s4Y = height * 0.48 + Math.cos(t4 * 0.8) * 55;
-
-      const c4p1x = width * 0.25 + Math.cos(t4 * 0.9) * 100;
-      const c4p1y = height * 0.85 + Math.sin(t4 * 0.7) * 75;
-
-      const c4p2x = width * 0.68 + Math.sin(t4 * 0.8) * 110;
-      const c4p2y = height * 0.52 + Math.cos(t4 * 1.1) * 85;
-
-      const e4X = width * 1.05 + Math.cos(t4 * 0.7) * 60;
-      const e4Y = height * 0.92 + Math.sin(t4 * 0.6) * 65;
-
-      const drawSpline4 = (offsetX, offsetY, strokeWidth, color, blur) => {
-        ctx.beginPath();
-        ctx.moveTo(s4X + offsetX, s4Y + offsetY);
-        ctx.bezierCurveTo(
-          c4p1x + offsetX,
-          c4p1y + offsetY,
-          c4p2x + offsetX,
-          c4p2y + offsetY,
-          e4X + offsetX,
-          e4Y + offsetY
-        );
-        ctx.shadowColor = color;
-        ctx.shadowBlur = blur;
-        ctx.strokeStyle = color;
-        ctx.lineWidth = strokeWidth * beatPulse;
-        ctx.lineCap = 'round';
-        ctx.stroke();
-      };
-
-      // Concentric chromatic aura lines for Shape 4:
-      drawSpline4(0, 0, 140, `rgba(79, 70, 229, ${0.28 * glowIntensity})`, 70);
-      drawSpline4(16, -10, 85, `rgba(255, 87, 34, ${0.46 * glowIntensity})`, 50);
-      drawSpline4(28, -20, 46, `rgba(250, 204, 21, ${0.68 * glowIntensity})`, 35);
-      drawSpline4(38, -28, 20, `rgba(34, 211, 238, ${0.88 * glowIntensity})`, 22);
-      drawSpline4(42, -32, 6, `rgba(224, 254, 255, ${0.98 * glowIntensity})`, 12);
-
       ctx.restore();
 
       animId = requestAnimationFrame(render);
