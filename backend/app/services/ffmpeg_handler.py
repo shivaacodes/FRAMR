@@ -94,11 +94,11 @@ def apply_edits_cli(
     
     vf_filters = []
     
-    # 1. Aspect Ratio Crop
+    # 1. Aspect Ratio Crop (Strict even dimensions for H.264)
     if aspect_ratio == '9/16':
-        vf_filters.append("crop=ih*9/16:ih")
+        vf_filters.append("crop=ih*9/16:ih,scale=720:1280")
     elif aspect_ratio == '1/1':
-        vf_filters.append("crop=ih:ih")
+        vf_filters.append("crop=ih:ih,scale=720:720")
         
     # 2. Flip
     if flip_h:

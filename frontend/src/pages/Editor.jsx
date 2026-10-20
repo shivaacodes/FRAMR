@@ -110,14 +110,15 @@ export default function Editor() {
     }
   };
 
-  const handleExport = async () => {
+  const handleExport = async (overrideAspect) => {
     setIsExporting(true);
+    const finalAspect = (typeof overrideAspect === 'string') ? overrideAspect : aspectRatio;
     try {
       const res = await fetch(`${API_BASE}/api/v1/videos/${id}/export`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          aspect_ratio: aspectRatio,
+          aspect_ratio: finalAspect,
           filter_type: filter,
           brightness: brightness,
           contrast: contrast,
@@ -141,7 +142,8 @@ export default function Editor() {
         const a = document.createElement('a');
         a.style.display = 'none';
         a.href = url;
-        a.download = `edited_${videoData.filename}`;
+        const prefix = finalAspect === '9/16' ? 'instagram_reel_' : 'edited_';
+        a.download = `${prefix}${videoData.filename}`;
         document.body.appendChild(a);
         a.click();
         window.URL.revokeObjectURL(url);
@@ -211,19 +213,37 @@ export default function Editor() {
               FRAMR EDIT STUDIO // PRO SUITE
             </h3>
           </div>
-          <div style={{ display: 'flex', gap: '12px' }}>
-            <button className="btn-secondary" onClick={() => navigate(`/result/${id}`)} disabled={isExporting} style={{ padding: '8px 18px', fontSize: '0.85rem' }}>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button className="btn-secondary" onClick={() => navigate(`/result/${id}`)} disabled={isExporting} style={{ padding: '8px 16px', fontSize: '0.85rem' }}>
               Cancel
             </button>
             <button
               className="btn-download"
-              onClick={handleExport}
+              onClick={() => handleExport('9/16')}
+              disabled={isExporting}
+              style={{
+                background: 'linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888)',
+                color: '#fff',
+                fontWeight: 'bold',
+                padding: '8px 16px',
+                fontSize: '0.85rem',
+                border: 'none',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}
+            >
+              <span>📸</span> Export 9:16 Reel
+            </button>
+            <button
+              className="btn-download"
+              onClick={() => handleExport()}
               disabled={isExporting}
               style={{
                 background: 'var(--lime)',
                 color: 'var(--black)',
                 fontWeight: 'bold',
-                padding: '8px 20px',
+                padding: '8px 18px',
                 fontSize: '0.85rem'
               }}
             >
