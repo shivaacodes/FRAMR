@@ -6,9 +6,20 @@ from app.db.session import engine
 from app.db import models
 from app.core.config import settings
 from app.services.soundtrack_generator import ensure_soundtracks
+from sqlalchemy import text
 
 # Create database tables
 models.Base.metadata.create_all(bind=engine)
+
+# Ensure columns exist in SQLite
+with engine.connect() as conn:
+    for col, col_type in [("rating", "INTEGER"), ("feedback", "TEXT"), ("sensitivity", "FLOAT DEFAULT 1.0")]:
+        try:
+            conn.execute(text(f"ALTER TABLE videos ADD COLUMN {col} {col_type}"))
+            conn.commit()
+        except Exception:
+            pass
+
 # Ensure default soundtracks exist
 ensure_soundtracks()
 

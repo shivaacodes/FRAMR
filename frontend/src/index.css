@@ -1284,3 +1284,105 @@ body::after {
   display: flex;
   gap: 12px;
 }
+
+/* ─────────────────────────────────────────────
+   CYBERPUNK 3D EXTENSIONS
+───────────────────────────────────────────── */
+:root {
+  --cyber-cyan: #00f0ff;
+  --cyber-pink: #ff007f;
+  --cyber-green: #39ff14;
+  --cyber-yellow: #ffe600;
+  --cyber-purple: #8b00ff;
+  --cyber-void: #07050d;
+  --cyber-card: rgba(18, 13, 28, 0.85);
+  --cyber-border: rgba(0, 240, 255, 0.35);
+}
+
+/* 3D Perspective Grid Background */
+.cyber-3d-grid {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.cyber-3d-grid::before {
+  content: '';
+  position: absolute;
+  bottom: -200px;
+  left: -50%;
+  right: -50%;
+  height: 600px;
+  background-image: 
+    linear-gradient(rgba(0, 240, 255, 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 240, 255, 0.12) 1px, transparent 1px);
+  background-size: 40px 40px;
+  transform: perspective(400px) rotateX(75deg);
+  transform-origin: center bottom;
+  animation: cyberGridDrift 15s linear infinite;
+  mask-image: linear-gradient(to top, rgba(0,0,0,1) 10%, rgba(0,0,0,0) 90%);
+}
+
+@keyframes cyberGridDrift {
+  from { background-position: 0 0; }
+  to { background-position: 0 400px; }
+}
+
+/* Scanline Overlay */
+.cyber-scanlines {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.12),
+    rgba(0, 0, 0, 0.12) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  opacity: 0.5;
+}
+
+/* 3D Cyber Card */
+.cyber-card {
+  background: var(--cyber-card);
+  backdrop-filter: blur(14px);
+  border: 1px solid var(--cyber-border);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), 0 0 15px rgba(0, 240, 255, 0.1);
+  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease;
+  position: relative;
+}
+
+.cyber-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8), 0 0 25px rgba(0, 240, 255, 0.25);
+  border-color: rgba(0, 240, 255, 0.7);
+}
+
+/* Chamfered Corners */
+.cyber-cut {
+  clip-path: polygon(
+    14px 0%, 
+    100% 0%, 
+    100% calc(100% - 14px), 
+    calc(100% - 14px) 100%, 
+    0% 100%, 
+    0% 14px
+  );
+}
+
+/* Glowing Neon Pills */
+.cyber-badge {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}

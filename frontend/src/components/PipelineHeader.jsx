@@ -1,0 +1,199 @@
+import { useLocation, useNavigate, Link } from 'react-router-dom';
+
+export default function PipelineHeader() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const path = location.pathname;
+
+  // Extract ID if present in URL
+  const match = path.match(/\/(processing|result|reel|editor)\/(\d+)/);
+  const currentId = match ? match[2] : null;
+
+  const steps = [
+    { num: '01', label: 'INGEST', path: '/', active: path === '/' },
+    { 
+      num: '02', 
+      label: 'AI SCAN', 
+      path: currentId ? `/processing/${currentId}` : null, 
+      active: path.startsWith('/processing'),
+      disabled: !currentId && !path.startsWith('/processing')
+    },
+    { 
+      num: '03', 
+      label: 'REEL SHOWCASE', 
+      path: currentId ? `/result/${currentId}` : null, 
+      active: path.startsWith('/result') || path.startsWith('/reel'),
+      disabled: !currentId && !path.startsWith('/result') && !path.startsWith('/reel')
+    },
+    { 
+      num: '04', 
+      label: 'STUDIO PRO', 
+      path: currentId ? `/editor/${currentId}` : null, 
+      active: path.startsWith('/editor'),
+      disabled: !currentId && !path.startsWith('/editor')
+    },
+    { 
+      num: '05', 
+      label: 'VAULT', 
+      path: '/gallery', 
+      active: path === '/gallery' 
+    }
+  ];
+
+  return (
+    <nav style={{
+      background: 'rgba(10, 7, 18, 0.85)',
+      backdropFilter: 'blur(16px)',
+      borderBottom: '1px solid rgba(0, 240, 255, 0.2)',
+      padding: '10px 24px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      position: 'sticky',
+      top: 0,
+      zIndex: 500,
+      boxShadow: '0 4px 25px rgba(0, 240, 255, 0.08)'
+    }}>
+      {/* Brand logo & Cyber Tag */}
+      <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <div style={{
+          width: '32px',
+          height: '32px',
+          borderRadius: '6px',
+          background: 'linear-gradient(135deg, #00f0ff, #ff007f)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          boxShadow: '0 0 15px rgba(0, 240, 255, 0.5)',
+          fontWeight: 900,
+          color: '#000',
+          fontFamily: 'var(--font-display)',
+          fontSize: '1.1rem'
+        }}>
+          F
+        </div>
+        <div>
+          <span style={{
+            fontFamily: 'var(--font-display)',
+            fontSize: '1.25rem',
+            letterSpacing: '2px',
+            color: '#fff',
+            textShadow: '0 0 10px rgba(0, 240, 255, 0.6)'
+          }}>
+            FRAMR
+          </span>
+          <span style={{
+            fontSize: '0.62rem',
+            color: '#00f0ff',
+            fontFamily: 'var(--font-mono)',
+            marginLeft: '8px',
+            letterSpacing: '1px',
+            border: '1px solid rgba(0, 240, 255, 0.4)',
+            padding: '1px 6px',
+            borderRadius: '4px'
+          }}>
+            CYBER_CORE v2.5
+          </span>
+        </div>
+      </Link>
+
+      {/* Cyberpunk Breadcrumb Pipeline */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '4px',
+        background: 'rgba(0,0,0,0.5)',
+        padding: '4px 10px',
+        borderRadius: '30px',
+        border: '1px solid rgba(255, 255, 255, 0.08)'
+      }}>
+        {steps.map((s, idx) => (
+          <div key={s.num} style={{ display: 'flex', alignItems: 'center' }}>
+            <button
+              onClick={() => s.path && navigate(s.path)}
+              disabled={s.disabled}
+              style={{
+                background: s.active 
+                  ? 'linear-gradient(90deg, #00f0ff22, #ff007f22)' 
+                  : 'transparent',
+                border: s.active ? '1px solid #00f0ff' : '1px solid transparent',
+                borderRadius: '20px',
+                padding: '4px 12px',
+                color: s.active ? '#00f0ff' : (s.disabled ? '#4a3f55' : '#aaa'),
+                fontSize: '0.72rem',
+                fontFamily: 'var(--font-mono)',
+                fontWeight: s.active ? 700 : 500,
+                cursor: s.disabled ? 'not-allowed' : 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                transition: 'all 0.2s',
+                boxShadow: s.active ? '0 0 12px rgba(0, 240, 255, 0.4)' : 'none'
+              }}
+            >
+              <span style={{
+                fontSize: '0.65rem',
+                opacity: 0.7,
+                color: s.active ? '#ff007f' : 'inherit'
+              }}>
+                {s.num}
+              </span>
+              <span>{s.label}</span>
+              {s.active && (
+                <span style={{
+                  width: '6px',
+                  height: '6px',
+                  borderRadius: '50%',
+                  background: '#00f0ff',
+                  boxShadow: '0 0 8px #00f0ff'
+                }} />
+              )}
+            </button>
+
+            {idx < steps.length - 1 && (
+              <span style={{
+                color: s.active ? '#ff007f' : '#33263e',
+                fontSize: '0.65rem',
+                margin: '0 2px',
+                fontWeight: 'bold'
+              }}>
+                ─►
+              </span>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* Right Quick Actions */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <button
+          onClick={() => navigate('/gallery')}
+          style={{
+            background: 'transparent',
+            border: '1px solid rgba(255, 0, 127, 0.4)',
+            color: '#ff007f',
+            fontFamily: 'var(--font-mono)',
+            fontSize: '0.72rem',
+            padding: '5px 12px',
+            borderRadius: '6px',
+            cursor: 'pointer',
+            transition: 'all 0.2s',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = '#ff007f20';
+            e.currentTarget.style.boxShadow = '0 0 12px rgba(255, 0, 127, 0.4)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = 'transparent';
+            e.currentTarget.style.boxShadow = 'none';
+          }}
+        >
+          <span>💾</span> NEURAL VAULT
+        </button>
+      </div>
+    </nav>
+  );
+}

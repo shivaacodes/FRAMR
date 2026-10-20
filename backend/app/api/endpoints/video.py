@@ -40,6 +40,32 @@ async def upload_video(
     
     return {"message": "Upload successful, processing started", "video_id": new_video.id}
 
+@router.post("/demo-video")
+def load_demo_video(background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
+    demo_src = os.path.join(settings.UPLOAD_DIR, "test.mp4")
+    if not os.path.exists(demo_src):
+        files = [f for f in os.listdir(settings.UPLOAD_DIR) if f.endswith(".mp4")]
+        if files:
+            demo_src = os.path.join(settings.UPLOAD_DIR, files[0])
+        else:
+            return {"error": "No demo footage found"}
+            
+    unique_filename = f"demo_{uuid.uuid4().hex[:8]}.mp4"
+    file_path = os.path.join(settings.UPLOAD_DIR, unique_filename)
+    shutil.copyfile(demo_src, file_path)
+    
+    new_video = models.Video(
+        filename=f"Action_Cyber_Clip_{uuid.uuid4().hex[:4]}.mp4",
+        original_path=str(file_path),
+        status=models.VideoStatus.PENDING
+    )
+    db.add(new_video)
+    db.commit()
+    db.refresh(new_video)
+    
+    background_tasks.add_task(process_video_task, new_video.id)
+    return {"message": "Demo job initialized", "video_id": new_video.id}
+
 @router.get("/")
 def list_videos(db: Session = Depends(get_db)):
     videos = db.query(models.Video).order_by(models.Video.created_at.desc()).all()
@@ -51,6 +77,44 @@ def get_video(video_id: int, db: Session = Depends(get_db)):
     if not video:
         return {"error": "Video not found"}
     return video
+
+class FeedbackRequest(BaseModel):
+    rating: int
+    feedback: str | None = None
+    sensitivity: float = 1.0
+
+@router.post("/{video_id}/feedback")
+def submit_feedback(video_id: int, req: FeedbackRequest, db: Session = Depends(get_db)):
+    video = db.query(models.Video).filter(models.Video.id == video_id).first()
+    if not video:
+        return {"error": "Video not found"}
+    video.rating = req.rating
+    video.feedback = req.feedback
+    video.sensitivity = req.sensitivity
+    db.commit()
+    return {"message": "Feedback recorded", "rating": video.rating}
+
+@router.get("/{video_id}/telemetry")
+def get_video_telemetry(video_id: int, db: Session = Depends(get_db)):
+    video = db.query(models.Video).filter(models.Video.id == video_id).first()
+    if not video:
+        return {"error": "Video not found"}
+    log_path = os.path.join(settings.BASE_DIR, "data", "logs", f"video_{video_id}.log")
+    log_lines = []
+    if os.path.exists(log_path):
+        with open(log_path, "r") as f:
+            log_lines = [line.strip() for line in f.readlines()]
+    return {
+        "video_id": video.id,
+        "filename": video.filename,
+        "status": video.status,
+        "duration_seconds": video.duration_seconds,
+        "rating": video.rating,
+        "feedback": video.feedback,
+        "sensitivity": video.sensitivity,
+        "highlight_path": video.highlight_path,
+        "telemetry_stream": log_lines[-30:]
+    }
 from fastapi.responses import StreamingResponse
 import asyncio
 

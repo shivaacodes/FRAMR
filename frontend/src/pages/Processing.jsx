@@ -69,120 +69,161 @@ export default function Processing() {
 
   // Color formatter for log tags
   const renderLogLine = (log, index) => {
-    let color = '#a3e635'; // default lime-ish
-    if (log.includes('[System]')) color = '#F2C230'; // Gold/Amber
-    else if (log.includes('[VisionEngine]')) color = '#4ade80'; // Bright Green
-    else if (log.includes('[Audio]')) color = '#38bdf8'; // Sky Blue
-    else if (log.includes('[FFmpeg]')) color = '#fb923c'; // Orange
+    let color = '#00f0ff'; // default cyan
+    if (log.includes('[System]')) color = '#ffe600'; // Neon Yellow
+    else if (log.includes('[VisionEngine]')) color = '#39ff14'; // Matrix Green
+    else if (log.includes('[Audio]')) color = '#00f0ff'; // Cyan
+    else if (log.includes('[FFmpeg]')) color = '#ff007f'; // Hot Pink
     else if (log.includes('[Intelligence]')) color = '#c084fc'; // Purple
-    else if (log.toLowerCase().includes('error') || log.toLowerCase().includes('fail')) color = '#f87171'; // Red
+    else if (log.toLowerCase().includes('error') || log.toLowerCase().includes('fail')) color = '#ff3344'; // Red
 
     const timestamp = new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
     return (
       <div key={index} style={{ marginBottom: '4px', lineHeight: '1.45', display: 'flex', gap: '8px' }}>
-        <span style={{ color: '#685572', flexShrink: 0 }}>[{timestamp}]</span>
+        <span style={{ color: '#4a3f55', flexShrink: 0 }}>[{timestamp}]</span>
         <span style={{ color, wordBreak: 'break-word' }}>{log}</span>
       </div>
     );
   };
 
   return (
-    <div className="panels" style={{ gridTemplateColumns: '1fr', maxWidth: '880px', margin: '0 auto', paddingTop: '20px' }}>
-      <section className="panel panel--output" style={{ borderLeft: '3px solid var(--lime)', borderBottom: '3px solid var(--gray-dim)', background: 'var(--ink)' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-          <h2 className="panel__heading" style={{ margin: 0 }}>
-            <span className="panel__heading-dot panel__heading-dot--blue" />
-            AI Pipeline Processing Job #{id}
-          </h2>
+    <div style={{ maxWidth: '960px', margin: '0 auto', padding: '30px 20px', width: '100%', position: 'relative', zIndex: 10 }}>
+      <section 
+        className="cyber-card cyber-cut" 
+        style={{ 
+          background: 'rgba(16, 12, 28, 0.94)', 
+          padding: '24px', 
+          borderRadius: '12px' 
+        }}
+      >
+        {/* Top Header */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#ff007f', boxShadow: '0 0 10px #ff007f' }} />
+              <h2 style={{
+                fontFamily: 'var(--font-display)',
+                fontSize: '1.4rem',
+                letterSpacing: '1.5px',
+                color: '#fff',
+                margin: 0
+              }}>
+                STAGE 02 // MULTI-MODAL CV EXTRACTION
+              </h2>
+            </div>
+            <div style={{ fontSize: '0.75rem', color: '#8082a6', fontFamily: 'var(--font-mono)', marginTop: '4px', marginLeft: '16px' }}>
+              JOB_ID: #{id} · PROCESSING NEURAL PIPELINE
+            </div>
+          </div>
+
           <span style={{
             fontSize: '0.75rem',
             fontFamily: 'var(--font-mono)',
-            padding: '4px 10px',
+            padding: '4px 12px',
             borderRadius: '4px',
-            background: status === 'COMPLETED' ? '#22c55e20' : (status === 'FAILED' ? '#ef444420' : '#F2C23020'),
-            color: status === 'COMPLETED' ? '#22c55e' : (status === 'FAILED' ? '#ef4444' : '#F2C230'),
-            border: `1px solid ${status === 'COMPLETED' ? '#22c55e' : (status === 'FAILED' ? '#ef4444' : '#F2C230')}`
+            background: status === 'COMPLETED' ? 'rgba(57, 255, 20, 0.15)' : (status === 'FAILED' ? 'rgba(255, 0, 127, 0.2)' : 'rgba(0, 240, 255, 0.15)'),
+            color: status === 'COMPLETED' ? '#39ff14' : (status === 'FAILED' ? '#ff007f' : '#00f0ff'),
+            border: `1px solid ${status === 'COMPLETED' ? '#39ff14' : (status === 'FAILED' ? '#ff007f' : '#00f0ff')}`,
+            boxShadow: `0 0 10px ${status === 'COMPLETED' ? '#39ff14' : (status === 'FAILED' ? '#ff007f' : '#00f0ff')}40`
           }}>
-            {status}
+            ● {status}
           </span>
         </div>
 
-        <div className="output-zone" style={{ padding: '0px', background: 'transparent' }}>
+        <div>
           {status === 'FAILED' ? (
-            <div className="output-empty" style={{ padding: '40px 20px' }}>
-              <div className="upload-icon upload-icon--error">
-                <svg viewBox="0 0 48 48" fill="none">
-                  <circle cx="24" cy="24" r="18" stroke="currentColor" strokeWidth="2.5"/>
-                  <path d="M24 15v12M24 32v2" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
-                </svg>
-              </div>
-              <p className="upload-primary" style={{color: 'var(--magenta)'}}>Processing failed during pipeline execution</p>
-              <button className="btn-danger" onClick={() => navigate('/')} style={{ marginTop: '16px' }}>Return to Home</button>
+            <div style={{ padding: '40px 20px', textAlign: 'center' }}>
+              <div style={{ fontSize: '2.5rem', marginBottom: '10px' }}>⚠️</div>
+              <p style={{ color: '#ff007f', fontFamily: 'var(--font-display)', fontSize: '1.2rem', letterSpacing: '1px' }}>
+                PIPELINE EXECUTION INTERRUPTED
+              </p>
+              <button 
+                className="btn-danger" 
+                onClick={() => navigate('/')} 
+                style={{ marginTop: '16px', background: '#ff007f', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '6px', cursor: 'pointer' }}
+              >
+                Return to Ingestion Portal
+              </button>
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              {/* Animated Progress Indicator */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+              
+              {/* 3D Waveform Audio Visualizer & State Banner */}
               <div style={{
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                padding: '12px 18px',
-                background: 'rgba(255, 255, 255, 0.03)',
+                padding: '14px 20px',
+                background: 'rgba(0, 240, 255, 0.04)',
                 borderRadius: '8px',
-                border: '1px solid rgba(255, 255, 255, 0.08)'
+                border: '1px solid rgba(0, 240, 255, 0.2)',
+                boxShadow: 'inset 0 0 15px rgba(0, 240, 255, 0.05)'
               }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <div className="audio-bars" style={{ margin: 0, height: '24px' }}>
-                    {[1, 2, 3, 4, 5].map((i) => (
-                      <span key={i} className="audio-bar" style={{ '--i': i }} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                  {/* Neon Equalizer Bars */}
+                  <div style={{ display: 'flex', gap: '3px', alignItems: 'flex-end', height: '24px' }}>
+                    {[16, 24, 12, 28, 20, 10, 26, 18, 22].map((h, i) => (
+                      <span 
+                        key={i} 
+                        style={{
+                          width: '3px',
+                          height: `${h}px`,
+                          background: 'linear-gradient(to top, #00f0ff, #ff007f)',
+                          borderRadius: '1px',
+                          animation: `equalizeBar 0.8s ease-in-out infinite alternate`,
+                          animationDelay: `${i * 0.1}s`
+                        }} 
+                      />
                     ))}
                   </div>
+
                   <div>
-                    <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--yellow)', fontFamily: 'var(--font-mono)' }}>
-                      {status === 'COMPLETED' ? 'PIPELINE FINISHED' : 'EXECUTING MULTI-MODAL HIGHLIGHT EXTRACTION'}
+                    <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#00f0ff', fontFamily: 'var(--font-mono)' }}>
+                      {status === 'COMPLETED' ? 'PIPELINE COMPLETE // HIGHLIGHTS READY' : 'EXTRACTING MULTI-MODAL HIGHLIGHT PEAKS'}
                     </div>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--gray)' }}>
-                      Computer Vision (OpenCV) · Audio Spectrogram (FFmpeg) · Dynamic Scoring
+                    <div style={{ fontSize: '0.72rem', color: '#8082A6', fontFamily: 'var(--font-mono)' }}>
+                      OpenCV Motion Differential + 44.1kHz RMS Energy Fusion
                     </div>
                   </div>
                 </div>
+
                 <div style={{
                   display: 'flex',
                   alignItems: 'center',
                   gap: '6px',
                   fontFamily: 'var(--font-mono)',
                   fontSize: '0.75rem',
-                  color: '#4ade80'
+                  color: '#39ff14'
                 }}>
                   <span style={{
                     width: '8px',
                     height: '8px',
                     borderRadius: '50%',
-                    background: '#4ade80',
-                    boxShadow: '0 0 8px #4ade80',
+                    background: '#39ff14',
+                    boxShadow: '0 0 10px #39ff14',
                     display: 'inline-block'
                   }} />
-                  LIVE
+                  LIVE_FEED
                 </div>
               </div>
 
-              {/* The Hacker Matrix Terminal */}
+              {/* The Matrix Terminal */}
               <div style={{
                 borderRadius: '8px',
                 overflow: 'hidden',
-                border: '1px solid #46334f',
-                boxShadow: '0 8px 30px rgba(0,0,0,0.5)',
-                background: '#120c17'
+                border: '1px solid rgba(0, 240, 255, 0.3)',
+                boxShadow: '0 12px 40px rgba(0,0,0,0.8), inset 0 0 15px rgba(0, 240, 255, 0.05)',
+                background: '#09060f'
               }}>
                 {/* Terminal Window Header */}
                 <div style={{
-                  background: '#23182b',
-                  padding: '10px 14px',
+                  background: '#150e1f',
+                  padding: '10px 16px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
-                  borderBottom: '1px solid #3a2845'
+                  borderBottom: '1px solid rgba(255, 255, 255, 0.08)'
                 }}>
                   <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                     <span style={{ width: '11px', height: '11px', borderRadius: '50%', background: '#ff5f56', display: 'inline-block' }} />
@@ -192,13 +233,13 @@ export default function Processing() {
                   <div style={{
                     fontFamily: 'var(--font-mono)',
                     fontSize: '0.75rem',
-                    color: '#8082A6',
+                    color: '#00f0ff',
                     letterSpacing: '1px'
                   }}>
-                    FRAMR_CORE_TELEMETRY // RUNTIME
+                    FRAMR_CORE_TELEMETRY // STREAM
                   </div>
                   <div style={{ fontSize: '0.7rem', color: '#685572', fontFamily: 'var(--font-mono)' }}>
-                    {logs.length} frames/events logged
+                    {logs.length} telemetry frames
                   </div>
                 </div>
 
@@ -206,32 +247,33 @@ export default function Processing() {
                 <div
                   ref={terminalRef}
                   style={{
-                    padding: '16px',
-                    height: '320px',
+                    padding: '18px',
+                    height: '340px',
                     overflowY: 'auto',
                     fontFamily: 'var(--font-mono)',
                     fontSize: '0.8rem',
                     color: '#e2e8f0',
-                    background: '#120c17',
-                    boxShadow: 'inset 0 0 20px rgba(0,0,0,0.8)'
+                    background: '#09060f',
+                    boxShadow: 'inset 0 0 30px rgba(0,0,0,0.9)'
                   }}
                 >
                   {logs.length === 0 ? (
-                    <div style={{ color: '#685572', fontStyle: 'italic' }}>
-                      &gt; Initializing neural stream socket... Waiting for engine handshake...
+                    <div style={{ color: '#4a3f55', fontStyle: 'italic' }}>
+                      &gt; Establishing socket uplink to AI vision daemon... Initializing optical vectors...
                     </div>
                   ) : null}
 
                   {logs.map((log, index) => renderLogLine(log, index))}
 
                   {/* Blinking prompt line */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '6px', color: 'var(--yellow)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '6px', color: '#00f0ff' }}>
                     <span>&gt;</span>
                     <span style={{
                       display: 'inline-block',
                       width: '8px',
                       height: '14px',
-                      background: 'var(--yellow)',
+                      background: '#00f0ff',
+                      boxShadow: '0 0 8px #00f0ff',
                       animation: 'blink 1s step-end infinite'
                     }} />
                   </div>
@@ -239,26 +281,34 @@ export default function Processing() {
                 </div>
               </div>
 
-              {/* Status footer pill */}
+              {/* Status Footer Pill */}
               <div style={{
                 display: 'flex',
                 justifyContent: 'space-between',
                 fontSize: '0.72rem',
                 fontFamily: 'var(--font-mono)',
-                color: 'var(--gray-dim)',
-                padding: '0 4px'
+                color: '#8082a6',
+                padding: '0 4px',
+                flexWrap: 'wrap',
+                gap: '8px'
               }}>
-                <span>THREAD: 0 (PARALLEL FAST SEEK)</span>
-                <span>CRF: 23 · PRESET: ULTRAFAST</span>
-                <span>STATUS: {status === 'COMPLETED' ? 'READY FOR EDIT STUDIO' : 'EXTRACTING HIGHLIGHTS...'}</span>
+                <span>ACCELERATION: ULTRAFAST 60FPS</span>
+                <span>FUSION: 60% AUDIO RMS + 40% OPTICAL CV</span>
+                <span style={{ color: status === 'COMPLETED' ? '#39ff14' : '#00f0ff' }}>
+                  {status === 'COMPLETED' ? '✓ TRANSITIONING TO REEL SHOWCASE' : 'SCANNING PEAKS...'}
+                </span>
               </div>
             </div>
           )}
         </div>
       </section>
 
-      {/* Inline styles for cursor blink */}
+      {/* Animation Keyframes */}
       <style>{`
+        @keyframes equalizeBar {
+          0% { height: 6px; }
+          100% { height: 24px; }
+        }
         @keyframes blink {
           from, to { opacity: 1; }
           50% { opacity: 0; }

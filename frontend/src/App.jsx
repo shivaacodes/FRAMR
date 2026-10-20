@@ -6,6 +6,7 @@ import Processing from './pages/Processing';
 import Result from './pages/Result';
 import Editor from './pages/Editor';
 import Gallery from './pages/Gallery';
+import PipelineHeader from './components/PipelineHeader';
 
 /* --- Cursor Hook --- */
 function useCursor() {
@@ -64,22 +65,12 @@ export default function App() {
       <div className="cursor-dot" ref={dotRef} />
       <div className={`cursor-ring ${clicked ? 'cursor-ring--click' : ''}`} ref={ringRef} />
 
-      {/* ── TOP BAR ── */}
-      <header className="top-bar">
-        <Link to="/" style={{textDecoration: 'none'}}>
-          <div className="top-bar__brand">
-            <h1 className="top-bar__logo">FRAMR</h1>
-            <div className="top-bar__divider" />
-            <span className="top-bar__tagline">Automated Editing</span>
-          </div>
-        </Link>
-        <div className="top-bar__right">
-          <button className="btn-secondary" style={{padding: '6px 12px', fontSize: '0.6rem'}} onClick={() => navigate('/gallery')}>
-            Gallery
-          </button>
-          <span className="version-label">v2.0.0-rc1</span>
-        </div>
-      </header>
+      {/* ── 3D CYBERPUNK GRID & SCANLINES ── */}
+      <div className="cyber-3d-grid" />
+      <div className="cyber-scanlines" />
+
+      {/* ── CYBER PIPELINE HUD ── */}
+      <PipelineHeader />
 
       {/* ── HERO ── */}
       <section className="hero">

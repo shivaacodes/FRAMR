@@ -20,5 +20,8 @@ class Video(Base):
     highlight_path = Column(String, nullable=True)
     status = Column(Enum(VideoStatus), default=VideoStatus.PENDING)
     duration_seconds = Column(Float, nullable=True)
+    rating = Column(Integer, nullable=True)
+    feedback = Column(String, nullable=True)
+    sensitivity = Column(Float, default=1.0)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
