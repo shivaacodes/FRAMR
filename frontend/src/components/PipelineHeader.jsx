@@ -10,7 +10,7 @@ export default function PipelineHeader() {
   const currentId = match ? match[2] : null;
 
   const steps = [
-    { num: '01', label: 'INGEST', path: '/', active: path === '/' },
+    { num: '01', label: 'INGEST', path: '/ingest', active: path === '/ingest' },
     { 
       num: '02', 
       label: 'AI SCAN', 
@@ -170,62 +170,35 @@ export default function PipelineHeader() {
         ))}
       </div>
 
-      {/* Right Quick Actions */}
+      {/* Right Cyber Status */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-        <button
-          onClick={() => navigate('/engine')}
-          style={{
-            background: 'transparent',
-            border: '1px solid rgba(0, 240, 255, 0.4)',
-            color: '#00f0ff',
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          padding: '6px 14px',
+          background: 'rgba(57, 255, 20, 0.06)',
+          border: '1px solid rgba(57, 255, 20, 0.35)',
+          borderRadius: '20px',
+          boxShadow: '0 0 12px rgba(57, 255, 20, 0.15)'
+        }}>
+          <span style={{
+            width: '7px',
+            height: '7px',
+            borderRadius: '50%',
+            background: '#39ff14',
+            boxShadow: '0 0 8px #39ff14'
+          }} />
+          <span style={{
             fontFamily: 'var(--font-mono)',
-            fontSize: '0.72rem',
-            padding: '5px 12px',
-            borderRadius: '6px',
-            cursor: 'pointer',
-            transition: 'all 0.2s',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = '#00f0ff20';
-            e.currentTarget.style.boxShadow = '0 0 12px rgba(0, 240, 255, 0.4)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = 'transparent';
-            e.currentTarget.style.boxShadow = 'none';
-          }}
-        >
-          <span>🔬</span> CV SPECS
-        </button>
-        <button
-          onClick={() => navigate('/gallery')}
-          style={{
-            background: 'transparent',
-            border: '1px solid rgba(255, 0, 127, 0.4)',
-            color: '#ff007f',
-            fontFamily: 'var(--font-mono)',
-            fontSize: '0.72rem',
-            padding: '5px 12px',
-            borderRadius: '6px',
-            cursor: 'pointer',
-            transition: 'all 0.2s',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = '#ff007f20';
-            e.currentTarget.style.boxShadow = '0 0 12px rgba(255, 0, 127, 0.4)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = 'transparent';
-            e.currentTarget.style.boxShadow = 'none';
-          }}
-        >
-          <span>💾</span> NEURAL VAULT
-        </button>
+            fontSize: '0.68rem',
+            color: '#39ff14',
+            letterSpacing: '1.2px',
+            fontWeight: 700
+          }}>
+            CYBER_CORE ONLINE
+          </span>
+        </div>
       </div>
     </nav>
   );

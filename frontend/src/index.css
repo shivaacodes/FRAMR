@@ -37,64 +37,28 @@
 
   --font-display: "Array-BoldWide", "Array-Bold", "Orbitron", sans-serif;
   --font-heading: "Array-SemiboldWide", "Array-Semibold", "Rajdhani", sans-serif;
+  --font-hairline:"Pencerio-Hairline", sans-serif;
   --font-ui:      "Chakra Petch", sans-serif;
   --font-mono:    "JetBrains Mono", monospace;
 }
 
 /* ─────────────────────────────────────────────
-   RESET + CURSOR KILL
+   CYBERPUNK HIGH-VISIBILITY YELLOW ARROW CURSOR
 ───────────────────────────────────────────── */
+:root {
+  --cursor-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E%3Cpolygon points='2,2 2,22 7,17 12,24 15,22 10,15 18,15' fill='%23FFE600' stroke='%23000000' stroke-width='1.8' stroke-linejoin='round'/%3E%3Cpolygon points='4,5 4,17 7,14 11,19 12,18 8,13 14,13' fill='%23FFF475'/%3E%3C/svg%3E");
+  --cursor-pointer: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E%3Cpolygon points='2,2 2,22 7,17 12,24 15,22 10,15 18,15' fill='%2300F0FF' stroke='%23000000' stroke-width='1.8' stroke-linejoin='round'/%3E%3Cpolygon points='4,5 4,17 7,14 11,19 12,18 8,13 14,13' fill='%23E0FFFF'/%3E%3Ccircle cx='2' cy='2' r='2.5' fill='%23FFE600' stroke='%23000' stroke-width='1'/%3E%3C/svg%3E");
+}
+
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  cursor: none !important;
+  cursor: var(--cursor-arrow) 2 2, default !important;
 }
 
-/* ─────────────────────────────────────────────
-   CUSTOM CYBER CURSOR
-───────────────────────────────────────────── */
-.cursor-dot {
-  position: fixed;
-  top: 0; left: 0;
-  width: 10px; height: 10px;
-  background: var(--cyber-cyan);
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 99999;
-  transform: translate(-50%, -50%);
-  transition: transform 0.08s, background 0.15s;
-  box-shadow: 0 0 10px var(--cyber-cyan);
-}
-
-.cursor-ring {
-  position: fixed;
-  top: 0; left: 0;
-  width: 38px; height: 38px;
-  border: 1.5px solid var(--cyber-pink);
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 99998;
-  transform: translate(-50%, -50%);
-  box-shadow: 0 0 12px rgba(255, 0, 85, 0.4);
-  transition:
-    width 0.22s cubic-bezier(0.22, 0.61, 0.36, 1),
-    height 0.22s cubic-bezier(0.22, 0.61, 0.36, 1),
-    border-color 0.2s,
-    background 0.2s;
-}
-
-.cursor-ring--hover {
-  width: 54px; height: 54px;
-  border-color: var(--cyber-cyan);
-  background: rgba(0, 240, 255, 0.06);
-  box-shadow: 0 0 20px rgba(0, 240, 255, 0.5);
-}
-
-.cursor-ring--click {
-  width: 24px; height: 24px;
-  border-color: var(--cyber-pink);
-  background: rgba(255, 0, 85, 0.25);
+button, a, input, select, textarea, [role="button"], .cursor-pointer, .upload-zone, .timeline-track {
+  cursor: var(--cursor-pointer) 2 2, pointer !important;
 }
 
 /* ─────────────────────────────────────────────

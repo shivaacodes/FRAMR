@@ -42,7 +42,7 @@ export default function Gallery() {
         </div>
 
         <button
-          onClick={() => navigate('/')}
+          onClick={() => navigate('/ingest')}
           style={{
             background: 'linear-gradient(90deg, #00f0ff, #0088ff)',
             color: '#000',
@@ -74,7 +74,7 @@ export default function Gallery() {
             No highlight reels have been archived yet. Upload raw footage or run the 1-click demo to generate your first reel.
           </p>
           <button
-            onClick={() => navigate('/')}
+            onClick={() => navigate('/ingest')}
             style={{
               background: '#00f0ff',
               color: '#000',

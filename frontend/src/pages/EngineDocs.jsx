@@ -27,7 +27,7 @@ export default function EngineDocs() {
         </div>
 
         <button
-          onClick={() => navigate('/')}
+          onClick={() => navigate('/ingest')}
           style={{
             background: 'linear-gradient(90deg, #00f0ff, #0088ff)',
             color: '#000',
