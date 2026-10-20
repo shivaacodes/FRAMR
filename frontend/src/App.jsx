@@ -6,6 +6,7 @@ import Processing from './pages/Processing';
 import Result from './pages/Result';
 import Editor from './pages/Editor';
 import Gallery from './pages/Gallery';
+import EngineDocs from './pages/EngineDocs';
 import PipelineHeader from './components/PipelineHeader';
 
 /* --- Cursor Hook --- */
@@ -72,30 +73,6 @@ export default function App() {
       {/* ── CYBER PIPELINE HUD ── */}
       <PipelineHeader />
 
-      {/* ── HERO ── */}
-      <section className="hero">
-        <div className="hero__content">
-          <span className="hero__eyebrow">A.I. Extraction</span>
-          <h2 className="hero__wordmark">
-            <span className="hero__wordmark-f">F</span>
-            <span className="hero__wordmark-r1">R</span>
-            <span className="hero__wordmark-a">A</span>
-            <span className="hero__wordmark-m">M</span>
-            <span className="hero__wordmark-r2">R</span>
-          </h2>
-          <p className="hero__sub">
-            The intelligent, multi-modal highlight generation engine.
-          </p>
-        </div>
-        <div className="hero__decoration">
-          <div className="deco-bar deco-bar--1"></div>
-          <div className="deco-bar deco-bar--2"></div>
-          <div className="deco-bar deco-bar--3"></div>
-        </div>
-        <span className="hero-label hero-label--mag" style={{top: 16, right: 32}}>BETA</span>
-        <span className="hero-label" style={{bottom: 40, left: 24}}>PROCESS_INIT</span>
-      </section>
-
       {/* ── MAIN CONTENT AREA ── */}
       <main style={{flex: 1, display: 'flex', flexDirection: 'column'}}>
         <Routes>
@@ -105,6 +82,7 @@ export default function App() {
           <Route path="/reel/:id" element={<Result />} />
           <Route path="/editor/:id" element={<Editor />} />
           <Route path="/gallery" element={<Gallery />} />
+          <Route path="/engine" element={<EngineDocs />} />
         </Routes>
       </main>
 

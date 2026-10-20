@@ -1,33 +1,43 @@
 /* ═══════════════════════════════════════════════════════════════
-   FRAMR — BRUTALIST DESIGN SYSTEM
-   Palette: Amber #F2C230 · Vermilion #F24F13 · Deep Purple #46334F
-   Fonts:   Anton (display) · Space Grotesk (UI) · JetBrains Mono
+   FRAMR — CYBERPUNK 2077 DESIGN SYSTEM
+   Palette: Electric Cyan #00f0ff · Hot Pink #ff0055 · Void Black #06050b
+   Fonts:   Orbitron (display) · Rajdhani (headings) · Chakra Petch (UI)
 ═══════════════════════════════════════════════════════════════ */
 
+@import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Orbitron:wght@600;700;800;900&family=Rajdhani:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
 @import "tailwindcss";
 
 /* ─────────────────────────────────────────────
-   TOKENS
+   CYBER TOKENS
 ───────────────────────────────────────────── */
 :root {
-  --yellow:     #F2C230;
-  --orange:     #F2921D;
-  --red-orange: #F24F13;
-  --slate:      #8082A6;
-  --dark-purple:#46334F;
+  --cyber-cyan:   #00f0ff;
+  --cyber-pink:   #ff0055;
+  --cyber-green:  #39ff14;
+  --cyber-gold:   #ffe600;
+  --cyber-void:   #06050b;
+  --cyber-card:   rgba(19, 15, 34, 0.88);
+  --cyber-border: rgba(0, 240, 255, 0.3);
 
-  /* Mapped colors to eliminate blacks */
-  --lime:       var(--yellow);
-  --magenta:    var(--red-orange);
-  --black:      var(--dark-purple);
-  --ink:        #3a2942;
-  --surface:    #5a4366;
-  --white:      #FFFFFF;
-  --gray:       var(--slate);
-  --gray-dim:   #685572;
+  /* System mapping */
+  --yellow:       #ffe600;
+  --orange:       #ff7700;
+  --red-orange:   #ff0055;
+  --slate:        #7d7299;
+  --dark-purple:  #06050b;
 
-  --font-display: "Anton", "Impact", sans-serif;
-  --font-ui:      "Space Grotesk", "Inter", sans-serif;
+  --lime:         var(--cyber-cyan);
+  --magenta:      var(--cyber-pink);
+  --black:        var(--cyber-void);
+  --ink:          #0d0a17;
+  --surface:      #130f22;
+  --white:        #f1f5f9;
+  --gray:         var(--slate);
+  --gray-dim:     #251d38;
+
+  --font-display: "Array-BoldWide", "Array-Bold", "Orbitron", sans-serif;
+  --font-heading: "Array-SemiboldWide", "Array-Semibold", "Rajdhani", sans-serif;
+  --font-ui:      "Chakra Petch", sans-serif;
   --font-mono:    "JetBrains Mono", monospace;
 }
 
@@ -42,46 +52,49 @@
 }
 
 /* ─────────────────────────────────────────────
-   CUSTOM CURSOR
+   CUSTOM CYBER CURSOR
 ───────────────────────────────────────────── */
 .cursor-dot {
   position: fixed;
   top: 0; left: 0;
-  width: 12px; height: 12px;
-  background: var(--lime);
+  width: 10px; height: 10px;
+  background: var(--cyber-cyan);
   border-radius: 50%;
   pointer-events: none;
   z-index: 99999;
   transform: translate(-50%, -50%);
   transition: transform 0.08s, background 0.15s;
-  mix-blend-mode: difference;
+  box-shadow: 0 0 10px var(--cyber-cyan);
 }
 
 .cursor-ring {
   position: fixed;
   top: 0; left: 0;
-  width: 44px; height: 44px;
-  border: 2.5px solid var(--magenta);
+  width: 38px; height: 38px;
+  border: 1.5px solid var(--cyber-pink);
   border-radius: 50%;
   pointer-events: none;
   z-index: 99998;
   transform: translate(-50%, -50%);
+  box-shadow: 0 0 12px rgba(255, 0, 85, 0.4);
   transition:
     width 0.22s cubic-bezier(0.22, 0.61, 0.36, 1),
     height 0.22s cubic-bezier(0.22, 0.61, 0.36, 1),
-    border-color 0.15s,
-    background 0.15s;
+    border-color 0.2s,
+    background 0.2s;
 }
 
 .cursor-ring--hover {
-  width: 64px; height: 64px;
-  border-color: var(--lime);
-  background: rgba(200, 255, 0, 0.08);
+  width: 54px; height: 54px;
+  border-color: var(--cyber-cyan);
+  background: rgba(0, 240, 255, 0.06);
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.5);
 }
 
 .cursor-ring--click {
   width: 24px; height: 24px;
-  background: rgba(255, 45, 120, 0.3);
+  border-color: var(--cyber-pink);
+  background: rgba(255, 0, 85, 0.25);
 }
 
 /* ─────────────────────────────────────────────
@@ -90,38 +103,13 @@
 html { scroll-behavior: smooth; }
 
 body {
-  background: var(--black);
+  background: var(--cyber-void);
   color: var(--white);
   font-family: var(--font-ui);
   min-height: 100vh;
   overflow-x: hidden;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
-}
-
-/* Scattered decorative blocks on the body — brutalist poster feel */
-body::before {
-  content: '';
-  position: fixed;
-  top: 60px; right: 40px;
-  width: 180px; height: 180px;
-  background: var(--magenta);
-  opacity: 0.06;
-  pointer-events: none;
-  z-index: 0;
-  transform: rotate(12deg);
-}
-
-body::after {
-  content: '';
-  position: fixed;
-  bottom: 100px; left: 60px;
-  width: 120px; height: 260px;
-  background: var(--lime);
-  opacity: 0.04;
-  pointer-events: none;
-  z-index: 0;
-  transform: rotate(-6deg);
 }
 
 /* ═══════════════════════════════════════════════

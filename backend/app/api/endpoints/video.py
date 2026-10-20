@@ -1,4 +1,5 @@
 from fastapi import APIRouter, UploadFile, File, BackgroundTasks, Depends
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.db import models

@@ -37,6 +37,12 @@ export default function PipelineHeader() {
       label: 'VAULT', 
       path: '/gallery', 
       active: path === '/gallery' 
+    },
+    { 
+      num: '06', 
+      label: 'CV SPECS', 
+      path: '/engine', 
+      active: path === '/engine' 
     }
   ];
 
@@ -166,6 +172,33 @@ export default function PipelineHeader() {
 
       {/* Right Quick Actions */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <button
+          onClick={() => navigate('/engine')}
+          style={{
+            background: 'transparent',
+            border: '1px solid rgba(0, 240, 255, 0.4)',
+            color: '#00f0ff',
+            fontFamily: 'var(--font-mono)',
+            fontSize: '0.72rem',
+            padding: '5px 12px',
+            borderRadius: '6px',
+            cursor: 'pointer',
+            transition: 'all 0.2s',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = '#00f0ff20';
+            e.currentTarget.style.boxShadow = '0 0 12px rgba(0, 240, 255, 0.4)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = 'transparent';
+            e.currentTarget.style.boxShadow = 'none';
+          }}
+        >
+          <span>🔬</span> CV SPECS
+        </button>
         <button
           onClick={() => navigate('/gallery')}
           style={{
